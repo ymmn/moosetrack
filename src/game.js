@@ -52,13 +52,21 @@ function CenteredButton(text, x, y, color) {
 }
 
 function nextLevel() {
-    stage.removeChild(startMenu);
     if (curLevel !== undefined) {
         stage.removeChild(curLevel.getContainer());
     }
     levelCnt += 1;
-    curLevel = new GameLevel(levelCnt);
-    stage.addChild(curLevel.getContainer());
+    var l = (Object.keys(LEVELS).length + 1);
+    if( levelCnt < l ) {
+        console.log(levelCnt + " " + l );
+        curLevel = new GameLevel(levelCnt);
+        stage.addChild(curLevel.getContainer());
+    } else {
+        levelCnt = 0;
+        curLevel = undefined;
+        stage.addChild(startMenu);
+        game_state = "Start Menu";
+    }
 }
 
 function makeStartMenu() {
@@ -149,10 +157,12 @@ function init() {
 
 function tick(event) {
     if (game_state === "Start Menu") {
+        console.log('baaah');
         var mouseOnStartBtn = startMenu.startButton.isClicked();
         if (mouseOnStartBtn && mouseDown) {
-            nextLevel();
+            console.log('bAM');
             stage.removeChild(startMenu);
+            nextLevel();
             game_state = "Play";
         }
     } else if (game_state == "Play") {
