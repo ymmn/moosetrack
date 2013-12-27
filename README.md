@@ -12,3 +12,8 @@ TODO
 - [ ] Create level 2: vertical with acceleration downwards
 - [ ] Create level 3: horizontal than parabola parabola (falling from hill. level terrain?)
 - [ ] Create level 4: bunny hopping
+- [ ] Sound: Menu music
+- [ ] Sound: Level music
+- [ ] Sound: sound when tracking ball correctly
+- [ ] Sound: Start of Level Sound
+- [ ] Sound: End of Level Sound
