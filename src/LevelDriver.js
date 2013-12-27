@@ -1,7 +1,8 @@
-function LevelDriver() {
+function LevelDriver(lvl) {
 
     ////////////////  PRIVATE VARIABLES ///////////////
     var _circle;
+    var _myLvl = LEVELS[lvl];
 
     //////////////// PUBLIC METHODS //////////////
     this.setCircle = function (c) {
@@ -9,13 +10,11 @@ function LevelDriver() {
     };
 
     this.done = function () {
-        if (_circle.x === 200) {
-            return true;
-        }
+        return _myLvl.done(_circle);
     };
 
     this.play = function () {
-        _circle.x += 1;
+        _myLvl.play(_circle);
     };
 
 }
