@@ -47,7 +47,7 @@ function GameLevel(lvl) {
         _circle.y = 100;
 
         _levelDriver.setCircle(_circle);
-        _levelNameContainer = _makeCenteredTextContainer("Level " + _levelNumber);
+        _levelNameContainer = _makeCenteredTextContainer(["Level " + _levelNumber]);
         _bigContainer.addChild(_levelNameContainer);
     };
 
@@ -65,17 +65,19 @@ function GameLevel(lvl) {
      * Returns a createjs container that has text at the center
      * of the game
      */
-    var _makeCenteredTextContainer = function (content) {
+    var _makeCenteredTextContainer = function (lines) {
         /* put containter at center */
         var cont = new createjs.Container();
         cont.x = GAME_DIMS.width / 2;
         cont.y = GAME_DIMS.height / 2;
 
-        var txt = new createjs.Text(content, "20px Arial", "#000");
-        txt.x = 0;
-        txt.y = 0;
+        for(var i = 0; i < lines.length; i++) {
+            var txt = new createjs.Text(lines[i], "20px Arial", "#000");
+            txt.x = 0;
+            txt.y = i*20;
 
-        cont.addChild(txt);
+            cont.addChild(txt);
+        }
 
         return cont;
     };
@@ -85,8 +87,8 @@ function GameLevel(lvl) {
      * Initializes the final score container and adds it to the stage
      */
     var _makeScoreDisplay = function (finalScore, possScore, percentage) {
-        var content = "Final Score: " + finalScore + " / " + possScore + "\n";
-        content += "" + percentage + "\n";
+        var content = ["Final Score: " + finalScore + " / " + possScore];
+        content.push(percentage + "%");
         _finalScoreContainer = _makeCenteredTextContainer(content);
         _bigContainer.addChild(_finalScoreContainer);
     };
@@ -96,7 +98,7 @@ function GameLevel(lvl) {
         if (cnt !== 0) {
             content = "" + cnt;
         }
-        _countdownContainer = _makeCenteredTextContainer(content);
+        _countdownContainer = _makeCenteredTextContainer([content]);
         _bigContainer.addChild(_countdownContainer);
     };
 
