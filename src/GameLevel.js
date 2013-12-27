@@ -125,10 +125,11 @@ function GameLevel(lvl) {
             }
         } else if (_state == PLAYING) {
             if (!_levelDriver.done()) {
-                _levelDriver.play();
                 if (_mouseWithinBall()) {
                     _playerScore++;
+                    console.log("BOOM");
                 }
+                _levelDriver.play();
                 _possScore++;
             } else {
                 var finalScore = _playerScore;
@@ -145,7 +146,6 @@ function GameLevel(lvl) {
             }
         }
         _timer++;
-        console.log(_state + ": " + _timer);
     };
 
     /**

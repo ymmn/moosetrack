@@ -3,7 +3,7 @@ var CANVAS_WIDTH;
 var CANVAS_HEIGHT;
 var OFFSET_X;
 var OFFSET_Y;
-var CIRCLE_RAD = 50;
+var CIRCLE_RAD = 20;
 var GOAL_FPS = 30;
 
 

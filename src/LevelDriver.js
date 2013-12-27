@@ -7,6 +7,7 @@ function LevelDriver(lvl) {
     //////////////// PUBLIC METHODS //////////////
     this.setCircle = function (c) {
         _circle = c;
+        _myLvl.initialize(_circle);
     };
 
     this.done = function () {
