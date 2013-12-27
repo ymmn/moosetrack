@@ -5,6 +5,8 @@ TODO
 
 - [X] Add start menu
 - [ ] Add Instructions
+- [ ] Color code scores text + grade
+- [ ] Different difficulties (different radii)
 - [X] Level Structure: display "Level n"
 - [X] Level Structure: countdown to start?
 - [X] Level Structure: Move ball until end condition
