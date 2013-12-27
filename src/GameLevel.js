@@ -38,6 +38,7 @@ function GameLevel(lvl) {
     var _accScore = 0;
     var _timer = 0;
     var _countdown = 3;
+    var _circleRad = CIRCLE_RAD[current_difficulty];
 
 
     ///////////////  PRIVATE METHODS ////////////////
@@ -48,9 +49,9 @@ function GameLevel(lvl) {
 
         /* make the ball */
         _circle = new createjs.Shape();
-        _circle.graphics.beginFill("red").drawCircle(0, 0, CIRCLE_RAD);
+        _circle.graphics.beginFill("red").drawCircle(0, 0, _circleRad);
         _replayCircle = new createjs.Shape();
-        _replayCircle.graphics.beginStroke("black").drawCircle(0, 0, CIRCLE_RAD);
+        _replayCircle.graphics.beginStroke("black").drawCircle(0, 0, _circleRad);
 
         /* make player recording line */
         _playerRecordingLine = new createjs.Shape();
@@ -70,7 +71,7 @@ function GameLevel(lvl) {
     var _mouseWithinBall = function () {
         var dx = Math.abs(mousex - _circle.x);
         var dy = Math.abs(mousey - _circle.y);
-        return dx <= CIRCLE_RAD && dy <= CIRCLE_RAD;
+        return dx <= _circleRad && dy <= _circleRad;
     };
 
     /**
@@ -86,6 +87,7 @@ function GameLevel(lvl) {
         var txt;
         for (var i = 0; i < lines.length; i++) {
             txt = new createjs.Text(lines[i], "20px Arial", "#000");
+            txt.textAlign = "center";
             txt.x = 0;
             txt.y = i * 20;
 
@@ -102,9 +104,23 @@ function GameLevel(lvl) {
     /**
      * Initializes the final score container and adds it to the stage
      */
-    var _makeScoreDisplay = function (finalScore, possScore, percentage) {
+    var _makeScoreDisplay = function (finalScore, possScore, percentage, extra) {
         var content = ["Final Score: " + finalScore + " / " + possScore];
         content.push(percentage + "%");
+        var grade = "F";
+        if(percentage > 98) {
+            grade = "A+";
+        } else if(percentage > 90) {
+            grade = "A";
+        } else if(percentage > 80) {
+            grade = "B";
+        } else if(percentage > 70) {
+            grade = "C";
+        } else if(percentage > 60) {
+            grade = "D";
+        }
+        content.push(grade);
+        content.push(extra);
         _finalScoreContainer = _makeCenteredTextContainer(content).container;
         _bigContainer.addChild(_finalScoreContainer);
     };
@@ -172,12 +188,19 @@ function GameLevel(lvl) {
                 if (_playerRecordingCnt === _possScore) {
                     _timer = 0;
                     var percentage = Math.round((_accScore / _possScore) * 1000) / 10;
+                    var extra = "";
+                    if( percentage >= PASSING_SCORE ) {
+                       unlocked_levels[current_difficulty][_levelNumber + 1 ]  = true;
+                       extra = "You unlocked the next level!";
+                    } else {
+                       extra = "You need a C or above to unlock the next level";
+                   }
                     _bigContainer.removeChild(_finalScoreContainer);
-                    _makeScoreDisplay(_accScore, _possScore, percentage);
+                    _makeScoreDisplay(_accScore, _possScore, percentage, extra);
                 }
             } else {
                 if (_timer == DISPLAY_SCORE_TIMER) {
-                    nextLevel();
+                    gotoStartMenu();
                 }
             }
         }

@@ -30,7 +30,9 @@ var LEVELS = {
 
 		done: function(c) {
 			return c.y >= 500;
-		}
+		},
+
+		quote: "I've never lost a game of Chicken"
 
 	},
 
