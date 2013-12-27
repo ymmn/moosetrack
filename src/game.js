@@ -1,5 +1,6 @@
 var CANVAS_WIDTH = 600;
 var CANVAS_HEIGHT = 600;
+var GAME_STATE;
 var stage;
 
 function keyHandler(e, isPressed) {
@@ -30,32 +31,16 @@ function handleMove(e) {
     mousey = e.y - offsety;
 }
 
-function CenteredButton(text, x, y, color) {
-    var _width = 100;
-    var _height = 40;
-    x = x - _width / 2;
-    y = y - _height / 2;
-
-    var title = new createjs.Text(text, '24px Helvetica', '#333');
-    title.x = x;
-    title.y = y;
-
-    var box = new createjs.Shape(new createjs.Graphics().beginFill(color).drawRect(x, y, _width, _height));
-
-    var button = new createjs.Container();
-    button.addChild(box, title);
-    this.shape = button;
-}
-
 var offsetx;
 var offsety;
 var circle;
 var CIRCLE_RAD = 50;
 var score;
 var s = 0;
+var startMenu, gameplayCont;
 
 function init() {
-
+    GAME_STATE = "Start Menu";
     // get a reference to the canvas we'll be working with:
     var canvas = document.getElementById("gameCanvas");
 
@@ -64,36 +49,15 @@ function init() {
     // create a stage object to work with the canvas. This is the top level node in the display list:
     stage = new createjs.Stage(canvas);
 
-    var startMenu = new createjs.Container();
-    var title = new createjs.Text('MooseTrack', '35px Helvetica', '#333');
-    title.x = CANVAS_WIDTH / 2 - 100;
-    title.y = CANVAS_HEIGHT / 10;
-    var startButton = new CenteredButton("Start", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, "#999")
-    startMenu.addChild(
-        new createjs.Shape(new createjs.Graphics().beginFill("#eee").drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)),
-        title,
-        startButton.shape
-    );
+    startMenu = makeStartMenu();
 
-    var gameplay = new createjs.Container();
+    gameplayCont = makeGameplayCont(); //new createjs.Container();
 
     window.onkeydown = handleKeyDown;
     window.onkeyup = handleKeyUp;
 
-    circle = new createjs.Shape();
-    circle.graphics.beginFill("red").drawCircle(0, 0, CIRCLE_RAD);
-    circle.x = 100;
-    circle.y = 100;
-    gameplay.addChild(circle);
-
-    score = new createjs.Text("0", "20px Arial", "#ff7700");
-    score.x = 100;
-    score.y = 100;
-
-    gameplay.addChild(score);
-
     stage.addChild(startMenu);
-    // stage.addChild(gameplay);
+    // stage.addChild(gameplayCont);
     // call update on the stage to make it render the current display list to the canvas:
     stage.update();
 
@@ -108,14 +72,83 @@ function init() {
 
 }
 
-function tick(event) {
-    var dx = Math.abs(mousex - circle.x);
-    var dy = Math.abs(mousey - circle.y);
-    //console.log("dy " + dy);
-    if (dx <= CIRCLE_RAD && dy <= CIRCLE_RAD) {
-        s++;
-        score.text = s;
+function CenteredButton(text, x, y, color) {
+    var boxW = 100;
+    var boxH = 40;
+
+    var title = new createjs.Text(text, '24px Helvetica', '#333');
+    title.x = x - title.getMeasuredWidth() / 2;
+    title.y = y - title.getMeasuredHeight() / 2;
+
+    var box = new createjs.Shape(new createjs.Graphics().beginFill(color).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH));
+
+    var button = new createjs.Container();
+    button.addChild(box, title);
+    this.shape = button;
+
+    this.isClicked = function () {
+        var mx = mousex;
+        var my = mousey;
+
+        if (mx >= x - boxW / 2 && mx <= x + boxW / 2 && my >= y - boxH / 2 && my <= y + boxH / 2) {
+            return true;
+        }
+
+        return false;
     }
-    circle.x += 1;
+}
+
+function makeStartMenu() {
+    var startMenu = new createjs.Container();
+    var title = new createjs.Text('MooseTrack', '35px Helvetica', '#333');
+    title.x = CANVAS_WIDTH / 2 - title.getMeasuredWidth() / 2;
+    title.y = CANVAS_HEIGHT / 10;
+    startMenu.startButton = new CenteredButton("Start", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, "#999")
+    startMenu.addChild(
+        new createjs.Shape(new createjs.Graphics().beginFill("#eee").drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)),
+        title,
+        startMenu.startButton.shape
+    );
+
+    return startMenu;
+}
+
+function makeGameplayCont() {
+    var gameplayCont = new createjs.Container();
+
+    circle = new createjs.Shape();
+    circle.graphics.beginFill("red").drawCircle(0, 0, CIRCLE_RAD);
+    circle.x = 100;
+    circle.y = 100;
+
+    score = new createjs.Text("0", "20px Arial", "#ff7700");
+    score.x = 100;
+    score.y = 100;
+
+    gameplayCont.addChild(circle, score);
+
+    return gameplayCont;
+}
+
+function tick(event) {
+    if (GAME_STATE === "Start Menu") {
+        if (startMenu.startButton.isClicked()) {
+            console.log("hover");
+            GAME_STATE = "Play";
+        }
+    } else if (GAME_STATE == "Play") {
+        stage.removeChild(startMenu);
+        stage.addChild(gameplayCont);
+        console.log("PLAYING");
+        var dx = Math.abs(mousex - circle.x);
+        var dy = Math.abs(mousey - circle.y);
+        //console.log("dy " + dy);
+        if (dx <= CIRCLE_RAD && dy <= CIRCLE_RAD) {
+            s++;
+            score.text = s;
+        }
+        circle.x += 1;
+    }
+
     stage.update();
 }
