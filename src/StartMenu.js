@@ -120,6 +120,12 @@ function StartMenu() {
     };
 
     var CenteredButton = function(text, x, y, color) {
+        /* states */
+        var OUT = -1000;
+        var HOVER = -1001;
+        var CLICKING = -1002;
+
+        var state = OUT;
         var boxW = 150;
         var boxH = 40;
 
@@ -137,8 +143,28 @@ function StartMenu() {
             var mx = mousex;
             var my = mousey;
 
-            if (mx >= x - boxW / 2 && mx <= x + boxW / 2 && my >= y - boxH / 2 && my <= y + boxH / 2) {
-                return mouseDown;
+            var in_btn = (mx >= x - boxW / 2 && mx <= x + boxW / 2 && my >= y - boxH / 2 && my <= y + boxH / 2);
+
+            /* proper click is hovering over button, clicking down mouse, and lifting up mouse */
+            if( !in_btn ) {
+                state = OUT;
+                return false;
+            } else {
+                /* mouse within button */
+                if ( state === OUT ) {
+                    if ( !mouseDown ) {
+                        state = HOVER;
+                    }
+                } else if ( state === HOVER ) {
+                    if( mouseDown ) {
+                        state = CLICKING;
+                    }
+                } else if ( state === CLICKING ) {
+                    if( !mouseDown ) {
+                        state = HOVER;
+                        return true;
+                    }
+                }
             }
 
             return false;

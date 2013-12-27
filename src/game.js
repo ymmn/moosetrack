@@ -73,8 +73,8 @@ function init() {
 
     /* register handlers */
     document.body.onmousemove = function (e) {
-        mousex = e.x - OFFSET_X;
-        mousey = e.y - OFFSET_Y;
+        mousex = e.x - OFFSET_X + window.scrollX;
+        mousey = e.y - OFFSET_Y + window.scrollY;
     };
     document.body.onmousedown = function () {
         mouseDown = true;

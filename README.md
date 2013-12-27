@@ -11,13 +11,13 @@ TODO
 - [X] Different difficulties (different radii)
 - [ ] BUG: impossible to get perfect score (can get up to 115/117 on lvl 1)
 - [ ] BUG: button onclick handler wont work if inside a container that's not at (0,0)
-- [ ] BUG: All buttons offset if scrolled
-- [ ] better click handler for clicking menu buttons (proper click is mouseup, mousedown, and mouseup all while in button)
+- [X] BUG: All buttons offset if scrolled
+- [X] better click handler for clicking menu buttons (proper click is mouseup, mousedown, and mouseup all while in button)
 - [X] Level select
 - [X] Gray out levels until player gets a C or higher
 - [ ] Witty quotes for every level, along with a simple illustration
 - [ ] Colorize ball on replay to be red when player is missing
-- [ ] Basic terrain for levels
+- [ ] Draw basic terrain for levels
 - [X] Level Structure: display "Level n"
 - [X] Level Structure: countdown to start?
 - [X] Level Structure: Move ball until end condition
