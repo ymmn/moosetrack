@@ -13,9 +13,9 @@ TODO
 - [X] Level Structure: display score as percentage
 - [X] Level Structure: post-mortem player replay
 - [X] Create level 1: horizontal with constant speed
-- [ ] Create level 2: vertical with acceleration downwards
+- [X] Create level 2: vertical with acceleration downwards
 - [X] Create level 3: horizontal than parabola parabola (falling from hill. level terrain?)
-- [X] Create level 4: bunny hopping
+- [ ] Create level 4: bunny hopping
 - [ ] Sound: Menu music
 - [ ] Sound: Level music
 - [ ] Sound: sound when tracking ball correctly
