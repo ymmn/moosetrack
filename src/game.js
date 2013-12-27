@@ -58,7 +58,6 @@ function nextLevel() {
     levelCnt += 1;
     var l = (Object.keys(LEVELS).length + 1);
     if( levelCnt < l ) {
-        console.log(levelCnt + " " + l );
         curLevel = new GameLevel(levelCnt);
         stage.addChild(curLevel.getContainer());
     } else {
@@ -157,10 +156,8 @@ function init() {
 
 function tick(event) {
     if (game_state === "Start Menu") {
-        console.log('baaah');
         var mouseOnStartBtn = startMenu.startButton.isClicked();
         if (mouseOnStartBtn && mouseDown) {
-            console.log('bAM');
             stage.removeChild(startMenu);
             nextLevel();
             game_state = "Play";
