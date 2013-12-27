@@ -1,3 +1,5 @@
+var CANVAS_WIDTH = 600;
+var CANVAS_HEIGHT = 600;
 var stage;
 
 function keyHandler(e, isPressed) {
@@ -28,6 +30,23 @@ function handleMove(e) {
     mousey = e.y - offsety;
 }
 
+function CenteredButton(text, x, y, color) {
+    var _width = 100;
+    var _height = 40;
+    x = x - _width / 2;
+    y = y - _height / 2;
+
+    var title = new createjs.Text(text, '24px Helvetica', '#333');
+    title.x = x;
+    title.y = y;
+
+    var box = new createjs.Shape(new createjs.Graphics().beginFill(color).drawRect(x, y, _width, _height));
+
+    var button = new createjs.Container();
+    button.addChild(box, title);
+    this.shape = button;
+}
+
 var offsetx;
 var offsety;
 var circle;
@@ -46,12 +65,14 @@ function init() {
     stage = new createjs.Stage(canvas);
 
     var startMenu = new createjs.Container();
-    var title = new createjs.Text('MooseTrack', 'Bold 15px Helvetica', '#000');
-    title.x = 25;
-    title.y = 25;
+    var title = new createjs.Text('MooseTrack', '35px Helvetica', '#333');
+    title.x = CANVAS_WIDTH / 2 - 100;
+    title.y = CANVAS_HEIGHT / 10;
+    var startButton = new CenteredButton("Start", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, "#999")
     startMenu.addChild(
-        new createjs.Shape(new createjs.Graphics().beginFill("#bbb").drawRect(0, 0, 500, 500)),
-        title
+        new createjs.Shape(new createjs.Graphics().beginFill("#eee").drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)),
+        title,
+        startButton.shape
     );
 
     var gameplay = new createjs.Container();
