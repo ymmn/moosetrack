@@ -28,8 +28,14 @@ function GameLevel(lvl) {
     var _state;
     var _levelDriver;
     var _levelNumber = lvl;
-    var _playerScore = 0;
+    var _playerScore = Array(1000);
     var _possScore = 0;
+    var _playerRecordingCnt = 1;
+    var _playerRecording = Array(1000);
+    var _playerRecordingLine;
+    var _scoreTxt;
+    var _replayCircle;
+    var _accScore = 0;
     var _timer = 0;
     var _countdown = 3;
 
@@ -43,11 +49,17 @@ function GameLevel(lvl) {
         /* make the ball */
         _circle = new createjs.Shape();
         _circle.graphics.beginFill("red").drawCircle(0, 0, CIRCLE_RAD);
-        _circle.x = 100;
-        _circle.y = 100;
+        _replayCircle = new createjs.Shape();
+        _replayCircle.graphics.beginStroke("black").drawCircle(0, 0, CIRCLE_RAD);
+
+        /* make player recording line */
+        _playerRecordingLine = new createjs.Shape();
+        var graphics = _playerRecordingLine.graphics;
+        graphics.setStrokeStyle(1);
+        graphics.beginStroke("black");
 
         _levelDriver.setCircle(_circle);
-        _levelNameContainer = _makeCenteredTextContainer(["Level " + _levelNumber]);
+        _levelNameContainer = _makeCenteredTextContainer(["Level " + _levelNumber]).container;
         _bigContainer.addChild(_levelNameContainer);
     };
 
@@ -71,15 +83,19 @@ function GameLevel(lvl) {
         cont.x = GAME_DIMS.width / 2;
         cont.y = GAME_DIMS.height / 2;
 
-        for(var i = 0; i < lines.length; i++) {
-            var txt = new createjs.Text(lines[i], "20px Arial", "#000");
+        var txt;
+        for (var i = 0; i < lines.length; i++) {
+            txt = new createjs.Text(lines[i], "20px Arial", "#000");
             txt.x = 0;
-            txt.y = i*20;
+            txt.y = i * 20;
 
             cont.addChild(txt);
         }
 
-        return cont;
+        return {
+            container: cont,
+            text: txt
+        };
     };
 
 
@@ -89,7 +105,7 @@ function GameLevel(lvl) {
     var _makeScoreDisplay = function (finalScore, possScore, percentage) {
         var content = ["Final Score: " + finalScore + " / " + possScore];
         content.push(percentage + "%");
-        _finalScoreContainer = _makeCenteredTextContainer(content);
+        _finalScoreContainer = _makeCenteredTextContainer(content).container;
         _bigContainer.addChild(_finalScoreContainer);
     };
 
@@ -98,7 +114,7 @@ function GameLevel(lvl) {
         if (cnt !== 0) {
             content = "" + cnt;
         }
-        _countdownContainer = _makeCenteredTextContainer([content]);
+        _countdownContainer = _makeCenteredTextContainer([content]).container;
         _bigContainer.addChild(_countdownContainer);
     };
 
@@ -125,24 +141,44 @@ function GameLevel(lvl) {
             }
         } else if (_state == PLAYING) {
             if (!_levelDriver.done()) {
-                if (_mouseWithinBall()) {
-                    _playerScore++;
-                    console.log("BOOM");
-                }
+                _playerScore[_possScore] = _mouseWithinBall();
+                _playerRecording[_possScore] = $V([mousex, mousey]);
                 _levelDriver.play();
                 _possScore++;
             } else {
-                var finalScore = _playerScore;
-                var possScore = _possScore;
                 // round to one decimal
-                var percentage = Math.round((finalScore / possScore) * 1000) / 10;
-                _makeScoreDisplay(finalScore, possScore, percentage);
+                // _makeScoreDisplay(finalScore, possScore, percentage);
                 _state = DISPLAY_SCORE;
                 _timer = 0;
+                _playerRecordingLine.graphics.moveTo(_playerRecording[0].x(), _playerRecording[0].y());
+                _bigContainer.addChild(_playerRecordingLine);
+                _bigContainer.addChild(_replayCircle);
+                _levelDriver.setCircle(_replayCircle);
+                var tc = _makeCenteredTextContainer(["" + 0]);
+                _scoreTxt = tc.text;
+                _finalScoreContainer = tc.container
+                _bigContainer.addChild(_finalScoreContainer);
             }
         } else if (_state == DISPLAY_SCORE) {
-            if (_timer == DISPLAY_SCORE_TIMER) {
-                nextLevel();
+            if (_playerRecordingCnt < _possScore) {
+                var v = _playerRecording[_playerRecordingCnt];
+                _playerRecordingLine.graphics.lineTo(v.x(), v.y());
+                _playerRecordingCnt++;
+                _levelDriver.play();
+                if (_playerScore[_playerRecordingCnt]) {
+                    _accScore++;
+                    _scoreTxt.text = "" + _accScore;
+                }
+                if (_playerRecordingCnt === _possScore) {
+                    _timer = 0;
+                    var percentage = Math.round((_accScore / _possScore) * 1000) / 10;
+                    _bigContainer.removeChild(_finalScoreContainer);
+                    _makeScoreDisplay(_accScore, _possScore, percentage);
+                }
+            } else {
+                if (_timer == DISPLAY_SCORE_TIMER) {
+                    nextLevel();
+                }
             }
         }
         _timer++;
