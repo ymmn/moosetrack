@@ -148,10 +148,6 @@ function init() {
 
 
 function tick(event) {
-    if (curLevel !== undefined) {
-        curLevel.tick();
-    }
-
     if (game_state === "Start Menu") {
         var mouseOnStartBtn = startMenu.startButton.isClicked();
         if (mouseOnStartBtn && mouseDown) {
@@ -160,16 +156,7 @@ function tick(event) {
             game_state = "Play";
         }
     } else if (game_state == "Play") {
-        // stage.addChild(gameplayCont);
-        // console.log("PLAYING");
-        // var dx = Math.abs(mousex - circle.x);
-        // var dy = Math.abs(mousey - circle.y);
-        //console.log("dy " + dy);
-        // if (dx <= CIRCLE_RAD && dy <= CIRCLE_RAD) {
-        //     s++;
-        //     score.text = s;
-        // }
-        // circle.x += 1;
+        curLevel.tick();
     }
     stage.update();
 }

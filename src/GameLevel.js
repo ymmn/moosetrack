@@ -14,9 +14,9 @@ function GameLevel(lvl) {
     };
 
     /* state timers (measured in ticks) */
-    var LEVEL_NAME_TIMER = 10;
-    var DISPLAY_SCORE_TIMER = 10;
-    var COUNT_DOWN_TIMER = 10;
+    var LEVEL_NAME_TIMER = 30;
+    var DISPLAY_SCORE_TIMER = 80;
+    var COUNT_DOWN_TIMER = 30;
 
 
     ////////////////  PRIVATE VARIABLES ///////////////
@@ -28,6 +28,8 @@ function GameLevel(lvl) {
     var _state;
     var _levelDriver;
     var _levelNumber = lvl;
+    var _playerScore = 0;
+    var _possScore = 0;
     var _timer = 0;
     var _countdown = 3;
 
@@ -35,11 +37,28 @@ function GameLevel(lvl) {
     ///////////////  PRIVATE METHODS ////////////////
     var _init = function () {
         _state = LEVEL_NAME;
-        _levelDriver = new LevelDriver(_gameplayContainer);
+        _levelDriver = new LevelDriver(_levelNumber);
         _bigContainer = new createjs.Container();
 
+        /* make the ball */
+        _circle = new createjs.Shape();
+        _circle.graphics.beginFill("red").drawCircle(0, 0, CIRCLE_RAD);
+        _circle.x = 100;
+        _circle.y = 100;
+
+        _levelDriver.setCircle(_circle);
         _levelNameContainer = _makeCenteredTextContainer("Level " + _levelNumber);
         _bigContainer.addChild(_levelNameContainer);
+    };
+
+    /**
+     * Judge user input for this current tick.
+     * Return true if user should get a point
+     */
+    var _mouseWithinBall = function () {
+        var dx = Math.abs(mousex - _circle.x);
+        var dy = Math.abs(mousey - _circle.y);
+        return dx <= CIRCLE_RAD && dy <= CIRCLE_RAD;
     };
 
     /**
@@ -88,6 +107,7 @@ function GameLevel(lvl) {
             if (_timer === LEVEL_NAME_TIMER) {
                 _bigContainer.removeChild(_levelNameContainer);
                 _state = COUNTING_DOWN;
+                _bigContainer.addChild(_circle);
                 _timer = 0;
             }
         } else if (_state == COUNTING_DOWN) {
@@ -104,9 +124,13 @@ function GameLevel(lvl) {
         } else if (_state == PLAYING) {
             if (!_levelDriver.done()) {
                 _levelDriver.play();
+                if (_mouseWithinBall()) {
+                    _playerScore++;
+                }
+                _possScore++;
             } else {
-                var finalScore = _levelDriver.score;
-                var possScore = _levelDriver.possibleScore;
+                var finalScore = _playerScore;
+                var possScore = _possScore;
                 // round to one decimal
                 var percentage = Math.round((finalScore / possScore) * 1000) / 10;
                 _makeScoreDisplay(finalScore, possScore, percentage);
