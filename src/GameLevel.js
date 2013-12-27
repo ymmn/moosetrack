@@ -13,26 +13,39 @@ function GameLevel() {
         height: 800
     };
 
+    /* state timers (measured in ticks) */
+    var LEVEL_NAME_TIMER = 10;
+    var DISPLAY_SCORE_TIMER = 10;
+    var COUNT_DOWN_TIMER = 10;
+
 
     ////////////////  PRIVATE VARIABLES ///////////////
     var _levelNameContainer;
     var _gameplayContainer;
     var _finalScoreContainer;
+    var _countdownContainer;
     var _bigContainer;
     var _state;
     var _levelDriver;
     var _levelNumber;
+    var _timer = 0;
+    var _countdown = 3;
 
 
     ///////////////  PRIVATE METHODS ////////////////
     var _init = function () {
         _state = LEVEL_NAME;
         _levelDriver = new LevelDriver(_gameplayContainer);
+        _bigContainer = new createjs.Container();
 
         _levelNameContainer = _makeCenteredTextContainer("Level " + _levelNumber);
         _bigContainer.addChild(_levelNameContainer);
     };
 
+    /**
+     * Returns a createjs container that has text at the center
+     * of the game
+     */
     var _makeCenteredTextContainer = function (content) {
         /* put containter at center */
         var cont = new createjs.Container();
@@ -49,6 +62,9 @@ function GameLevel() {
     };
 
 
+    /**
+     * Initializes the final score container and adds it to the stage
+     */
     var _makeScoreDisplay = function (finalScore, possScore, percentage) {
         var content = "Final Score: " + finalScore + " / " + possScore + "\n";
         content += "" + percentage + "\n";
@@ -56,13 +72,35 @@ function GameLevel() {
         _bigContainer.addChild(_finalScoreContainer);
     };
 
+    var _displayCountDown = function (cnt) {
+        var content = "GO";
+        if (cnt !== 0) {
+            content = "" + cnt;
+        }
+        _countdownContainer = _makeCenteredTextContainer(content);
+        _bigContainer.addChild(_countdownContainer);
+    };
+
 
     //////////////// PUBLIC METHODS //////////////
     this.tick = function () {
         if (_state == LEVEL_NAME) {
-
+            if (_timer === LEVEL_NAME_TIMER) {
+                _bigContainer.removeChild(_levelNameContainer);
+                _state = COUNTING_DOWN;
+                _timer = 0;
+            }
         } else if (_state == COUNTING_DOWN) {
-
+            if (_timer === 0 || _timer === COUNT_DOWN_TIMER) {
+                _bigContainer.removeChild(_countdownContainer);
+                if (_countdown < 0) {
+                    _state = PLAYING;
+                } else {
+                    _displayCountDown(_countdown);
+                    _countdown--;
+                }
+                _timer = 0;
+            }
         } else if (_state == PLAYING) {
             if (!_levelDriver.done()) {
                 _levelDriver.play();
@@ -72,12 +110,22 @@ function GameLevel() {
                 // round to one decimal
                 var percentage = Math.round((finalScore / possScore) * 1000) / 10;
                 _makeScoreDisplay(finalScore, possScore, percentage);
+                _state = DISPLAY_SCORE;
+                _timer = 0;
             }
         } else if (_state == DISPLAY_SCORE) {
+            if (_timer == DISPLAY_SCORE_TIMER) {
 
+                _timer = 0;
+            }
         }
+        _timer++;
+        console.log(_state + ": " + _timer);
     };
 
+    /**
+     * the container that has the entire level
+     */
     this.getContainer = function () {
         return _bigContainer;
     };

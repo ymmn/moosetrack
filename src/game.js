@@ -1,33 +1,30 @@
-var CANVAS_WIDTH = 600;
-var CANVAS_HEIGHT = 600;
+///////////////// CONSTANTS ////////////////
+var CANVAS_WIDTH;
+var CANVAS_HEIGHT;
+var CIRCLE_RAD = 50;
+var OFFSET_X;
+var OFFSET_Y;
+var GOAL_FPS = 30;
+
+
+
+////////////////  GLOBAL VARIABLES ///////////////
 var stage;
-
-function keyHandler(e, isPressed) {
-    switch (e.keyCode) {
-        default: return false;
-    }
-    return true;
-}
-
-function handleKeyUp(e) {
-    keyHandler(e, false);
-}
-
-function handleKeyDown(e) {
-
-    /* prevent arrow keys from scrolling window */
-    if (keyHandler(e, true)) {
-        e.preventDefault();
-    }
-
-}
-
 var mousex;
 var mousey;
+var curLevel;
+var levelCnt = 0;
+var startMenu;
+var circle;
+var score;
+var s = 0;
 
+
+
+///////////////// HELPERS ////////////////
 function handleMove(e) {
-    mousex = e.x - offsetx;
-    mousey = e.y - offsety;
+    mousex = e.x - OFFSET_X;
+    mousey = e.y - OFFSET_Y;
 }
 
 function CenteredButton(text, x, y, color) {
@@ -47,24 +44,38 @@ function CenteredButton(text, x, y, color) {
     this.shape = button;
 }
 
-var offsetx;
-var offsety;
-var circle;
-var CIRCLE_RAD = 50;
-var score;
-var s = 0;
+function nextLevel() {
+    stage.removeChild(startMenu);
+    levelCnt += 1;
+    curLevel = new GameLevel(levelCnt);
+    stage.addChild(curLevel.getContainer());
+}
 
+
+
+
+///////////////// CORE ////////////////
 function init() {
 
-    // get a reference to the canvas we'll be working with:
+    /* define canvas dimension constants */
     var canvas = document.getElementById("gameCanvas");
 
-    offsetx = canvas.offsetLeft;
-    offsety = canvas.offsetTop;
-    // create a stage object to work with the canvas. This is the top level node in the display list:
+    CANVAS_WIDTH = canvas.width;
+    CANVAS_HEIGHT = canvas.height;
+    OFFSET_X = canvas.offsetLeft;
+    OFFSET_Y = canvas.offsetTop;
+
+
+    /* register handlers */
+    window.addEventListener("mousemove", handleMove);
+
+
+    /* create stage */
     stage = new createjs.Stage(canvas);
 
-    var startMenu = new createjs.Container();
+
+    /* start menu */
+    startMenu = new createjs.Container();
     var title = new createjs.Text('MooseTrack', '35px Helvetica', '#333');
     title.x = CANVAS_WIDTH / 2 - 100;
     title.y = CANVAS_HEIGHT / 10;
@@ -75,47 +86,50 @@ function init() {
         startButton.shape
     );
 
-    var gameplay = new createjs.Container();
-
-    window.onkeydown = handleKeyDown;
-    window.onkeyup = handleKeyUp;
-
-    circle = new createjs.Shape();
-    circle.graphics.beginFill("red").drawCircle(0, 0, CIRCLE_RAD);
-    circle.x = 100;
-    circle.y = 100;
-    gameplay.addChild(circle);
-
-    score = new createjs.Text("0", "20px Arial", "#ff7700");
-    score.x = 100;
-    score.y = 100;
-
-    gameplay.addChild(score);
-
     stage.addChild(startMenu);
-    // stage.addChild(gameplay);
-    // call update on the stage to make it render the current display list to the canvas:
+
+    /* update stage to display everything */
     stage.update();
 
-    //start game timer   
+    /* start game timer */
     if (!createjs.Ticker.hasEventListener("tick")) {
         createjs.Ticker.addEventListener("tick", tick);
     }
+    createjs.Ticker.setFPS(GOAL_FPS);
 
-    window.addEventListener("mousemove", handleMove);
 
-    createjs.Ticker.setFPS(30);
+
+    // var gameplay = new createjs.Container();
+
+
+    // circle = new createjs.Shape();
+    // circle.graphics.beginFill("red").drawCircle(0, 0, CIRCLE_RAD);
+    // circle.x = 100;
+    // circle.y = 100;
+    // gameplay.addChild(circle);
+
+    // score = new createjs.Text("0", "20px Arial", "#ff7700");
+    // score.x = 100;
+    // score.y = 100;
+
+    // gameplay.addChild(score);
+
+    // stage.addChild(gameplay);
 
 }
 
+
 function tick(event) {
-    var dx = Math.abs(mousex - circle.x);
-    var dy = Math.abs(mousey - circle.y);
-    //console.log("dy " + dy);
-    if (dx <= CIRCLE_RAD && dy <= CIRCLE_RAD) {
-        s++;
-        score.text = s;
+    if (curLevel !== undefined) {
+        curLevel.tick();
     }
-    circle.x += 1;
+    // var dx = Math.abs(mousex - circle.x);
+    // var dy = Math.abs(mousey - circle.y);
+    // //console.log("dy " + dy);
+    // if (dx <= CIRCLE_RAD && dy <= CIRCLE_RAD) {
+    //     s++;
+    //     score.text = s;
+    // }
+    // circle.x += 1;
     stage.update();
 }
