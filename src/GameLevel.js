@@ -1,4 +1,4 @@
-function GameLevel() {
+function GameLevel(lvl) {
 
     ///////////////// CONSTANTS ////////////////
     /* states */
@@ -27,7 +27,7 @@ function GameLevel() {
     var _bigContainer;
     var _state;
     var _levelDriver;
-    var _levelNumber;
+    var _levelNumber = lvl;
     var _timer = 0;
     var _countdown = 3;
 
@@ -115,8 +115,7 @@ function GameLevel() {
             }
         } else if (_state == DISPLAY_SCORE) {
             if (_timer == DISPLAY_SCORE_TIMER) {
-
-                _timer = 0;
+                nextLevel();
             }
         }
         _timer++;
