@@ -5,6 +5,7 @@ function StartMenu() {
     var INITIAL = -100;
     var SELECT_LEVEL = -101;
     var ENABLED_BTN_COLOR = "#999";
+    var HOVER_BTN_COLOR = "#BBB";
     var SELECTED_BTN_COLOR = "#555";
     var DISABLED_BTN_COLOR = "#CCC";
 
@@ -139,17 +140,20 @@ function StartMenu() {
         title.x = x - title.getMeasuredWidth() / 2;
         title.y = y - title.getMeasuredHeight() / 2;
 
-        var box = new createjs.Shape(new createjs.Graphics().beginFill(color).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH));
+         var box = new createjs.Shape(new createjs.Graphics().beginFill(color).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH));
 
         var button = new createjs.Container();
         button.addChild(box, title);
         this.shape = button;
 
-        this.isClicked = function () {
+        var isHovered = function () {
             var mx = mousex;
             var my = mousey;
+            return (mx >= x - boxW / 2 && mx <= x + boxW / 2 && my >= y - boxH / 2 && my <= y + boxH / 2);
+        };
 
-            var in_btn = (mx >= x - boxW / 2 && mx <= x + boxW / 2 && my >= y - boxH / 2 && my <= y + boxH / 2);
+        this.isClicked = function () {
+            var in_btn = isHovered();
 
             /* proper click is hovering over button, clicking down mouse, and lifting up mouse */
             if( !in_btn ) {
@@ -185,7 +189,14 @@ function StartMenu() {
         }
 
         this.tick = function () {
-           if (this.isClicked()) {
+            if(isHovered()) {
+                if(color !== DISABLED_BTN_COLOR) {
+                   box.graphics.beginFill(HOVER_BTN_COLOR).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
+                }
+            } else {
+               box.graphics.beginFill(color).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
+            }
+            if (this.isClicked()) {
                 this.onclick();
             }
         };
