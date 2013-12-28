@@ -8,8 +8,8 @@ TODO
 - [ ] Add Instructions
 - [ ] Show ball size next to difficulty
 - [ ] Show max grade/percentage of completed levels in level select
-- [ ] Live color code the score as it's counting up
-- [ ] Color code scores text + grade
+- [X] Live color code the score as it's counting up
+- [X] Color code scores text + grade
 - [X] Different difficulties (different radii)
 - [X] BUG: impossible to get perfect score (can get up to 115/117 on lvl 1)
 - [ ] BUG: button onclick handler wont work if inside a container that's not at (0,0)

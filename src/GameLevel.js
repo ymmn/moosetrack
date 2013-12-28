@@ -87,7 +87,10 @@ function GameLevel(lvl) {
      * Returns a createjs container that has text at the center
      * of the game
      */
-    var _makeCenteredTextContainer = function (lines) {
+    var _makeCenteredTextContainer = function (lines, color) {
+        if( color === undefined ) {
+            color = "#000";
+        }
         /* put containter at center */
         var cont = new createjs.Container();
         cont.x = GAME_DIMS.width / 2;
@@ -95,7 +98,7 @@ function GameLevel(lvl) {
 
         var txt;
         for (var i = 0; i < lines.length; i++) {
-            txt = new createjs.Text(lines[i], "20px Arial", "#000");
+            txt = new createjs.Text(lines[i], "20px Arial", color);
             txt.textAlign = "center";
             txt.x = 0;
             txt.y = i * 20;
@@ -115,7 +118,9 @@ function GameLevel(lvl) {
      */
     var _makeScoreDisplay = function (finalScore, possScore, percentage, extra) {
         var content = ["Final Score: " + finalScore + " / " + possScore];
-        content.push(percentage + "%");
+        _bigContainer.addChild(_makeCenteredTextContainer(content).container);
+
+        content = [percentage + "%"];
         var grade = "F";
         if (percentage > 98) {
             grade = "A+";
@@ -130,7 +135,8 @@ function GameLevel(lvl) {
         }
         content.push(grade);
         content.push(extra);
-        _finalScoreContainer = _makeCenteredTextContainer(content).container;
+        _finalScoreContainer = _makeCenteredTextContainer(content, _getScoreColor(percentage)).container;
+        _finalScoreContainer.y += 50;
         _bigContainer.addChild(_finalScoreContainer);
     };
 
@@ -156,6 +162,13 @@ function GameLevel(lvl) {
         _bigContainer.addChild(_countdownContainer);
     };
 
+    var _getScoreColor = function(percentage) {
+        var r = Math.round(((100-percentage)/100) * 15).toString(16);
+        var g = Math.round((percentage/100) * 15).toString(16);
+        var b = "6";
+        return "#" + r + g + b;
+    };
+
     var _scorePhase = function () {
         /* draw the player's replay line*/
         var v = _playerRecording[_playerRecordingCnt];
@@ -166,10 +179,15 @@ function GameLevel(lvl) {
         /* move the ghost ball */
         _levelDriver.play();
 
+        /* calculate percentage to tenth place */
+        var percentage = Math.round((_accScore / _possScore) * 1000) / 10;
+
         /* count the players score */
         if (_playerScore[_playerRecordingCnt]) {
             _accScore++;
             _scoreTxt.text = "" + _accScore;
+            _scoreTxt.color = _getScoreColor(percentage);
+
             /* color ball red when player is scoring */
             ballColor = "red";
         }
@@ -183,9 +201,6 @@ function GameLevel(lvl) {
             /* yup! time to display total and stuff */
             _timer = 0;
             _state = DISPLAY_SCORE;
-
-            /* calculate percentage to tenth place */
-            var percentage = Math.round((_accScore / _possScore) * 1000) / 10;
 
             /* prepare the message telling the user whether or not he passed */
             var extra = "";
