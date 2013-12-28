@@ -18,7 +18,7 @@ TODO
 - [X] Level select
 - [X] Gray out levels until player gets a C or higher
 - [ ] Witty quotes for every level, along with a simple illustration
-- [ ] Colorize ball on replay to be red when player is missing
+- [X] Colorize ball on replay to be red when player is missing
 - [X] Draw basic terrain for levels
 - [X] Level Structure: display "Level n"
 - [X] Level Structure: countdown to start?

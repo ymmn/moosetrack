@@ -54,6 +54,7 @@ function GameLevel(lvl) {
         _circle.graphics.beginFill("red").drawCircle(0, 0, _circleRad);
         _replayCircle = new createjs.Shape();
         _replayCircle.graphics.beginStroke("black").drawCircle(0, 0, _circleRad);
+        _replayCircle.alpha = 0.25;
 
         /* make player recording line */
         _playerRecordingLine = new createjs.Shape();
@@ -116,15 +117,15 @@ function GameLevel(lvl) {
         var content = ["Final Score: " + finalScore + " / " + possScore];
         content.push(percentage + "%");
         var grade = "F";
-        if(percentage > 98) {
+        if (percentage > 98) {
             grade = "A+";
-        } else if(percentage > 90) {
+        } else if (percentage > 90) {
             grade = "A";
-        } else if(percentage > 80) {
+        } else if (percentage > 80) {
             grade = "B";
-        } else if(percentage > 70) {
+        } else if (percentage > 70) {
             grade = "C";
-        } else if(percentage > 60) {
+        } else if (percentage > 60) {
             grade = "D";
         }
         content.push(grade);
@@ -133,11 +134,11 @@ function GameLevel(lvl) {
         _bigContainer.addChild(_finalScoreContainer);
     };
 
-    var _createTerrain = function() {
+    var _createTerrain = function () {
         var terrain = LEVELS[_levelNumber].terrain;
-        if(terrain !== undefined) {
+        if (terrain !== undefined) {
             _terrainLine.graphics.moveTo(terrain[0].x(), terrain[0].y());
-            for(var i = 1; i < terrain.length; i++) {
+            for (var i = 1; i < terrain.length; i++) {
                 _terrainLine.graphics.lineTo(terrain[i].x(), terrain[i].y());
                 console.log(terrain[i].elements);
                 console.log(terrain[0].elements);
@@ -155,10 +156,12 @@ function GameLevel(lvl) {
         _bigContainer.addChild(_countdownContainer);
     };
 
-    var _scorePhase = function() {
+    var _scorePhase = function () {
         /* draw the player's replay line*/
         var v = _playerRecording[_playerRecordingCnt];
         _playerRecordingLine.graphics.lineTo(v.x(), v.y());
+
+        var ballColor = "black";
 
         /* move the ghost ball */
         _levelDriver.play();
@@ -167,7 +170,12 @@ function GameLevel(lvl) {
         if (_playerScore[_playerRecordingCnt]) {
             _accScore++;
             _scoreTxt.text = "" + _accScore;
+            /* color ball red when player is scoring */
+            ballColor = "red";
         }
+
+        /* color ball based on hit or miss */
+        _replayCircle.graphics.clear().beginFill(ballColor).drawCircle(0, 0, _circleRad);
 
 
         /* check if we're done */
@@ -181,11 +189,11 @@ function GameLevel(lvl) {
 
             /* prepare the message telling the user whether or not he passed */
             var extra = "";
-            if( percentage >= PASSING_SCORE ) {
-               unlocked_levels[current_difficulty][_levelNumber + 1 ]  = true;
-               extra = "You unlocked the next level!";
+            if (percentage >= PASSING_SCORE) {
+                unlocked_levels[current_difficulty][_levelNumber + 1] = true;
+                extra = "You unlocked the next level!";
             } else {
-               extra = "You need a C or above to unlock the next level";
+                extra = "You need a C or above to unlock the next level";
             }
 
             /* refresh score display */
@@ -209,7 +217,7 @@ function GameLevel(lvl) {
                 _createTerrain();
                 _timer = 0;
             }
-        }  /* Counting down for the game to start*/
+        } /* Counting down for the game to start*/
         else if (_state == COUNTING_DOWN) {
             /* Once timer is reached, Count down one more time */
             if (_timer === 0 || _timer === COUNT_DOWN_TIMER) {
