@@ -6,6 +6,7 @@ function GameLevel(lvl) {
     var COUNTING_DOWN = -2;
     var PLAYING = -3;
     var DISPLAY_SCORE = -4;
+    var REPLAY_AND_COUNT = -5;
 
     // TODO: move this elsewhere?
     var GAME_DIMS = {
@@ -154,10 +155,53 @@ function GameLevel(lvl) {
         _bigContainer.addChild(_countdownContainer);
     };
 
+    var _scorePhase = function() {
+        /* draw the player's replay line*/
+        var v = _playerRecording[_playerRecordingCnt];
+        _playerRecordingLine.graphics.lineTo(v.x(), v.y());
+
+        /* move the ghost ball */
+        _levelDriver.play();
+
+        /* count the players score */
+        if (_playerScore[_playerRecordingCnt]) {
+            _accScore++;
+            _scoreTxt.text = "" + _accScore;
+        }
+
+
+        /* check if we're done */
+        if (_playerRecordingCnt === _possScore) {
+            /* yup! time to display total and stuff */
+            _timer = 0;
+            _state = DISPLAY_SCORE;
+
+            /* calculate percentage to tenth place */
+            var percentage = Math.round((_accScore / _possScore) * 1000) / 10;
+
+            /* prepare the message telling the user whether or not he passed */
+            var extra = "";
+            if( percentage >= PASSING_SCORE ) {
+               unlocked_levels[current_difficulty][_levelNumber + 1 ]  = true;
+               extra = "You unlocked the next level!";
+            } else {
+               extra = "You need a C or above to unlock the next level";
+            }
+
+            /* refresh score display */
+            _bigContainer.removeChild(_finalScoreContainer);
+            _makeScoreDisplay(_accScore, _possScore, percentage, extra);
+        }
+
+        _playerRecordingCnt++;
+    };
+
 
     //////////////// PUBLIC METHODS //////////////
     this.tick = function () {
+        /* displaying the name of the level */
         if (_state == LEVEL_NAME) {
+            /* move on to next state once timer is reached */
             if (_timer === LEVEL_NAME_TIMER) {
                 _bigContainer.removeChild(_levelNameContainer);
                 _state = COUNTING_DOWN;
@@ -165,27 +209,33 @@ function GameLevel(lvl) {
                 _createTerrain();
                 _timer = 0;
             }
-        } else if (_state == COUNTING_DOWN) {
+        }  /* Counting down for the game to start*/
+        else if (_state == COUNTING_DOWN) {
+            /* Once timer is reached, Count down one more time */
             if (_timer === 0 || _timer === COUNT_DOWN_TIMER) {
                 _bigContainer.removeChild(_countdownContainer);
+                /* already counted to 0. Start the game! */
                 if (_countdown < 0) {
                     _state = PLAYING;
                 } else {
+                    /* still more numbers left to count */
                     _displayCountDown(_countdown);
                     _countdown--;
                 }
                 _timer = 0;
             }
-        } else if (_state == PLAYING) {
+        } /* Player is playing the game */
+        else if (_state == PLAYING) {
+            /* if the level is still going, record user input, and move ball */
             if (!_levelDriver.done()) {
                 _playerScore[_possScore] = _mouseWithinBall();
                 _playerRecording[_possScore] = $V([mousex, mousey]);
                 _levelDriver.play();
                 _possScore++;
             } else {
-                // round to one decimal
-                // _makeScoreDisplay(finalScore, possScore, percentage);
-                _state = DISPLAY_SCORE;
+                /* we're done! now setup to start the replay phase */
+                _state = REPLAY_AND_COUNT;
+                _possScore--;
                 _timer = 0;
                 _playerRecordingLine.graphics.moveTo(_playerRecording[0].x(), _playerRecording[0].y());
                 _bigContainer.addChild(_playerRecordingLine);
@@ -196,33 +246,13 @@ function GameLevel(lvl) {
                 _finalScoreContainer = tc.container
                 _bigContainer.addChild(_finalScoreContainer);
             }
-        } else if (_state == DISPLAY_SCORE) {
-            if (_playerRecordingCnt < _possScore) {
-                var v = _playerRecording[_playerRecordingCnt];
-                _playerRecordingLine.graphics.lineTo(v.x(), v.y());
-                _playerRecordingCnt++;
-                _levelDriver.play();
-                if (_playerScore[_playerRecordingCnt]) {
-                    _accScore++;
-                    _scoreTxt.text = "" + _accScore;
-                }
-                if (_playerRecordingCnt === _possScore) {
-                    _timer = 0;
-                    var percentage = Math.round((_accScore / _possScore) * 1000) / 10;
-                    var extra = "";
-                    if( percentage >= PASSING_SCORE ) {
-                       unlocked_levels[current_difficulty][_levelNumber + 1 ]  = true;
-                       extra = "You unlocked the next level!";
-                    } else {
-                       extra = "You need a C or above to unlock the next level";
-                   }
-                    _bigContainer.removeChild(_finalScoreContainer);
-                    _makeScoreDisplay(_accScore, _possScore, percentage, extra);
-                }
-            } else {
-                if (_timer == DISPLAY_SCORE_TIMER) {
-                    moosetrack.gotoStartMenu();
-                }
+        } /* replaying user input and counting score */
+        else if (_state == REPLAY_AND_COUNT) {
+            _scorePhase();
+        } /* showing user the final score and grade */
+        else if (_state == DISPLAY_SCORE) {
+            if (_timer == DISPLAY_SCORE_TIMER) {
+                moosetrack.gotoStartMenu();
             }
         }
         _timer++;

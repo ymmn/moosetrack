@@ -9,7 +9,7 @@ TODO
 - [ ] Live color code the score as it's counting up
 - [ ] Color code scores text + grade
 - [X] Different difficulties (different radii)
-- [ ] BUG: impossible to get perfect score (can get up to 115/117 on lvl 1)
+- [X] BUG: impossible to get perfect score (can get up to 115/117 on lvl 1)
 - [ ] BUG: button onclick handler wont work if inside a container that's not at (0,0)
 - [X] BUG: All buttons offset if scrolled
 - [X] better click handler for clicking menu buttons (proper click is mouseup, mousedown, and mouseup all while in button)
