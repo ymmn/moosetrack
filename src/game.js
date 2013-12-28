@@ -17,7 +17,7 @@ var mouseDown = false;
 
 /* game state */
 var current_difficulty = 0;
-var unlocked_levels = [{ 1: true }, {1: true}, {1: true}, {1: true}];
+var unlocked_levels = [{ 1: true, 2:true }, {1: true}, {1: true}, {1: true}];
 
 
 

@@ -33,6 +33,7 @@ function GameLevel(lvl) {
     var _playerRecordingCnt = 1;
     var _playerRecording = Array(1000);
     var _playerRecordingLine;
+    var _terrainLine;
     var _scoreTxt;
     var _replayCircle;
     var _accScore = 0;
@@ -56,6 +57,12 @@ function GameLevel(lvl) {
         /* make player recording line */
         _playerRecordingLine = new createjs.Shape();
         var graphics = _playerRecordingLine.graphics;
+        graphics.setStrokeStyle(1);
+        graphics.beginStroke("black");
+
+        /* make terrain shape */
+        _terrainLine = new createjs.Shape();
+        var graphics = _terrainLine.graphics;
         graphics.setStrokeStyle(1);
         graphics.beginStroke("black");
 
@@ -125,6 +132,19 @@ function GameLevel(lvl) {
         _bigContainer.addChild(_finalScoreContainer);
     };
 
+    var _createTerrain = function() {
+        var terrain = LEVELS[_levelNumber].terrain;
+        if(terrain !== undefined) {
+            _terrainLine.graphics.moveTo(terrain[0].x(), terrain[0].y());
+            for(var i = 1; i < terrain.length; i++) {
+                _terrainLine.graphics.lineTo(terrain[i].x(), terrain[i].y());
+                console.log(terrain[i].elements);
+                console.log(terrain[0].elements);
+            }
+            _bigContainer.addChild(_terrainLine);
+        }
+    };
+
     var _displayCountDown = function (cnt) {
         var content = "GO";
         if (cnt !== 0) {
@@ -142,6 +162,7 @@ function GameLevel(lvl) {
                 _bigContainer.removeChild(_levelNameContainer);
                 _state = COUNTING_DOWN;
                 _bigContainer.addChild(_circle);
+                _createTerrain();
                 _timer = 0;
             }
         } else if (_state == COUNTING_DOWN) {
