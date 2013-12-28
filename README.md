@@ -6,6 +6,7 @@ TODO
 - [X] Add start menu
 - [ ] Snazzier game menus with images for buttons
 - [ ] Add Instructions
+- [ ] Show ball size next to difficulty
 - [ ] Show max grade/percentage of completed levels in level select
 - [ ] Live color code the score as it's counting up
 - [ ] Color code scores text + grade
