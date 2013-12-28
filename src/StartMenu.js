@@ -29,9 +29,8 @@ function StartMenu() {
     };
 
     var _lvlBtnOnclick = function() {
-        console.log('hi');
         if( unlocked_levels[current_difficulty][this.lvl] ){
-            startLevel(this.lvl);
+            moosetrack.startLevel(this.lvl);
         }
     };
 

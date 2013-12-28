@@ -200,7 +200,7 @@ function GameLevel(lvl) {
                 }
             } else {
                 if (_timer == DISPLAY_SCORE_TIMER) {
-                    gotoStartMenu();
+                    moosetrack.gotoStartMenu();
                 }
             }
         }
