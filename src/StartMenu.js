@@ -105,11 +105,18 @@ function StartMenu() {
             if( i === current_difficulty ) {
                 color = SELECTED_BTN_COLOR;
             }
-            var btn = new CenteredButton(DIFFICULTIES[i], 200 + diffBtnsGap*i, 500, color);
+            var btnX = 200 + diffBtnsGap*i;
+            var btnY = 500;
+            var btn = new CenteredButton(DIFFICULTIES[i], btnX, btnY, color);
             btn.diffInd = i;
             btn.onclick = _difficultyBtnOnclick;
             _difficultyBtns.push(btn);
             _difficultyBtnsContainer.addChild(btn.shape);
+
+            var circleY = btnY - btn.height()/2 - CIRCLE_RAD[i] - 8;
+            var circ = new createjs.Shape();
+            circ.graphics.beginFill(CIRCLE_COLOR).drawCircle(btnX, circleY, CIRCLE_RAD[i]);
+            _difficultyBtnsContainer.addChild(circ);
         }
         _difficultyBtnsContainer.x = 0;
         _difficultyBtnsContainer.y = 0;
@@ -168,6 +175,14 @@ function StartMenu() {
 
             return false;
         };
+
+        this.height = function () {
+            return boxH;
+        }
+
+        this.width = function () {
+            return boxW;
+        }
 
         this.tick = function () {
            if (this.isClicked()) {

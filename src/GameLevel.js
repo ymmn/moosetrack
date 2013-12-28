@@ -51,7 +51,7 @@ function GameLevel(lvl) {
 
         /* make the ball */
         _circle = new createjs.Shape();
-        _circle.graphics.beginFill("red").drawCircle(0, 0, _circleRad);
+        _circle.graphics.beginFill(CIRCLE_COLOR).drawCircle(0, 0, _circleRad);
         _replayCircle = new createjs.Shape();
         _replayCircle.graphics.beginStroke("black").drawCircle(0, 0, _circleRad);
 
