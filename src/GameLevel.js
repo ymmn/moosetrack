@@ -121,21 +121,10 @@ function GameLevel(lvl) {
         _bigContainer.addChild(_makeCenteredTextContainer(content).container);
 
         content = [percentage + "%"];
-        var grade = "F";
-        if (percentage > 98) {
-            grade = "A+";
-        } else if (percentage > 90) {
-            grade = "A";
-        } else if (percentage > 80) {
-            grade = "B";
-        } else if (percentage > 70) {
-            grade = "C";
-        } else if (percentage > 60) {
-            grade = "D";
-        }
+        var grade = moosetrack.getGradeFromPercentage(percentage);
         content.push(grade);
         content.push(extra);
-        _finalScoreContainer = _makeCenteredTextContainer(content, _getScoreColor(percentage)).container;
+        _finalScoreContainer = _makeCenteredTextContainer(content, moosetrack.getScoreColor(percentage)).container;
         _finalScoreContainer.y += 50;
         _bigContainer.addChild(_finalScoreContainer);
     };
@@ -162,12 +151,7 @@ function GameLevel(lvl) {
         _bigContainer.addChild(_countdownContainer);
     };
 
-    var _getScoreColor = function(percentage) {
-        var r = Math.round(((100-percentage)/100) * 15).toString(16);
-        var g = Math.round((percentage/100) * 15).toString(16);
-        var b = "6";
-        return "#" + r + g + b;
-    };
+
 
     var _scorePhase = function () {
         /* draw the player's replay line*/
@@ -180,13 +164,13 @@ function GameLevel(lvl) {
         _levelDriver.play();
 
         /* calculate percentage to tenth place */
-        var percentage = Math.round((_accScore / _possScore) * 1000) / 10;
+        var percentage = Math.round((_accScore / (_possScore -1)) * 1000) / 10;
 
         /* count the players score */
         if (_playerScore[_playerRecordingCnt]) {
             _accScore++;
             _scoreTxt.text = "" + _accScore;
-            _scoreTxt.color = _getScoreColor(percentage);
+            _scoreTxt.color = moosetrack.getScoreColor(percentage);
 
             /* color ball red when player is scoring */
             ballColor = "red";
@@ -205,10 +189,17 @@ function GameLevel(lvl) {
             /* prepare the message telling the user whether or not he passed */
             var extra = "";
             if (percentage >= PASSING_SCORE) {
+                /* player passed, so unlock next level */
                 unlocked_levels[current_difficulty][_levelNumber + 1] = true;
                 extra = "You unlocked the next level!";
             } else {
                 extra = "You need a C or above to unlock the next level";
+            }
+
+            /* record top score */
+            var prevPercent = top_scores[current_difficulty][_levelNumber];
+            if( prevPercent === undefined || percentage > prevPercent ) {
+                top_scores[current_difficulty][_levelNumber] = percentage;
             }
 
             /* refresh score display */

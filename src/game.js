@@ -18,7 +18,8 @@ var mouseDown = false;
 
 /* game state */
 var current_difficulty = 0;
-var unlocked_levels = [{ 1: true, 2:true }, {1: true}, {1: true}, {1: true}];
+var unlocked_levels = [{ 1: true }, {1: true}, {1: true}, {1: true}];
+var top_scores = [{}, {}, {}, {}];
 
 
 
@@ -66,6 +67,28 @@ var moosetrack = function() {
         _stage.addChild(_startMenu.getContainer());
     };
 
+    p.getGradeFromPercentage = function(percentage) {
+        var grade = "F";
+        if (percentage > 98) {
+            grade = "A+";
+        } else if (percentage > 90) {
+            grade = "A";
+        } else if (percentage > 80) {
+            grade = "B";
+        } else if (percentage > 70) {
+            grade = "C";
+        } else if (percentage > 60) {
+            grade = "D";
+        }
+        return grade;
+    };
+
+    p.getScoreColor = function(percentage) {
+        var r = Math.round(((100-percentage)/100) * 15).toString(16);
+        var g = Math.round((percentage/100) * 15).toString(16);
+        var b = "6";
+        return "#" + r + g + b;
+    };
 
     ///////////////// CORE ////////////////
     p.init = function() {

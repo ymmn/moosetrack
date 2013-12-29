@@ -87,11 +87,27 @@ function StartMenu() {
             if( unlocked_levels[current_difficulty][lvl] ) {
                 color = ENABLED_BTN_COLOR;
             }
-            var btn = new CenteredButton("Level " + lvl, CANVAS_WIDTH / 2, 150 + lvlBtnsGap*i, color);
+            var y = 150 + lvlBtnsGap*i;
+            var btn = new CenteredButton("Level " + lvl, CANVAS_WIDTH / 2 - 100, y, color);
             btn.lvl = lvl;
             btn.onclick = _lvlBtnOnclick;
             _levelBtns.push(btn);
             _levelBtnsContainer.addChild(btn.shape);
+
+            /* Display the top score for this level */
+            var ts_percent = top_scores[current_difficulty][lvl];
+            if( ts_percent !== undefined ) {
+                var topscore = new createjs.Text(
+                    ts_percent + " " + moosetrack.getGradeFromPercentage(ts_percent),
+                    '25px Helvetica', '#333'
+                );
+                topscore.textAlign = "center";
+                topscore.x = CANVAS_WIDTH / 2 + 100;
+                topscore.y = y - 13;
+                /* color code the score */
+                topscore.color = moosetrack.getScoreColor(ts_percent);
+                _levelBtnsContainer.addChild(topscore);
+            }
         }
         _levelBtnsContainer.x = 0;
         _levelBtnsContainer.y = 0;
@@ -102,6 +118,7 @@ function StartMenu() {
         _difficultyBtnsContainer = new createjs.Container();
         var diffBtnsGap = 180;
         for(var i = 0; i < DIFFICULTIES.length; i++) {
+            /* color button based on whether or not it's active */
             var color = ENABLED_BTN_COLOR;
             if( i === current_difficulty ) {
                 color = SELECTED_BTN_COLOR;
@@ -114,6 +131,7 @@ function StartMenu() {
             _difficultyBtns.push(btn);
             _difficultyBtnsContainer.addChild(btn.shape);
 
+            /* draw the circle size of that difficulty */
             var circleY = btnY - btn.height()/2 - CIRCLE_RAD[i] - 8;
             var circ = new createjs.Shape();
             circ.graphics.beginFill(CIRCLE_COLOR).drawCircle(btnX, circleY, CIRCLE_RAD[i]);

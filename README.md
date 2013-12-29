@@ -6,9 +6,10 @@ TODO
 - [X] Add start menu
 - [ ] Snazzier game menus with images for buttons
 - [ ] Add Instructions
+- [ ] Remember player scores. cookie?
 - [X] Show ball size next to difficulty
 - [X] Make buttons change color on hover
-- [ ] Show max grade/percentage of completed levels in level select
+- [X] Show max grade/percentage of completed levels in level select
 - [X] Live color code the score as it's counting up
 - [X] Color code scores text + grade
 - [X] Different difficulties (different radii)
@@ -30,6 +31,9 @@ TODO
 - [ ] Create level 2: vertical with acceleration downwards
 - [X] Create level 3: horizontal than parabola parabola (falling from hill. level terrain?)
 - [X] Create level 4: bunny hopping
+- [ ] Create level 5: Roller coaster
+- [ ] Create level 6: Speedy horizontal?
+- [ ] Create level 7: Speedy zig zag
 - [ ] Sound: Menu music
 - [ ] Sound: Level music
 - [ ] Sound: sound when tracking ball correctly
