@@ -6,7 +6,7 @@ TODO
 - [X] Add start menu
 - [ ] Snazzier game menus with images for buttons
 - [ ] Add Instructions
-- [ ] Remember player scores. cookie?
+- [X] Remember player scores. cookie?
 - [X] Show ball size next to difficulty
 - [X] Make buttons change color on hover
 - [X] Show max grade/percentage of completed levels in level select
