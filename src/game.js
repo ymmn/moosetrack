@@ -93,6 +93,10 @@ var moosetrack = function() {
     ///////////////// CORE ////////////////
     p.init = function() {
 
+        var cookieVal = $.cookie('scores');
+        if(cookieVal !== undefined) {
+           top_scores = JSON.parse(cookieVal);
+        }
 
         /* define canvas dimension constants */
         var canvas = document.getElementById("gameCanvas");

@@ -200,6 +200,8 @@ function GameLevel(lvl) {
             var prevPercent = top_scores[current_difficulty][_levelNumber];
             if( prevPercent === undefined || percentage > prevPercent ) {
                 top_scores[current_difficulty][_levelNumber] = percentage;
+                /* save cookie */
+                $.cookie('scores', JSON.stringify(top_scores));
             }
 
             /* refresh score display */

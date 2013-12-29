@@ -98,7 +98,7 @@ function StartMenu() {
             var ts_percent = top_scores[current_difficulty][lvl];
             if( ts_percent !== undefined ) {
                 var topscore = new createjs.Text(
-                    ts_percent + " " + moosetrack.getGradeFromPercentage(ts_percent),
+                    ts_percent + "% " + moosetrack.getGradeFromPercentage(ts_percent),
                     '25px Helvetica', '#333'
                 );
                 topscore.textAlign = "center";
