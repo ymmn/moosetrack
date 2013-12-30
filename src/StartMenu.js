@@ -52,16 +52,29 @@ function StartMenu() {
         _bigContainer.removeAllChildren();
         _initialMenu = new createjs.Container();
 
+        /* logo */
+        var bitmap = new createjs.Bitmap("assets/logo.png");
+        bitmap.y -= 200;
+        bitmap.x += 80;
+        // bitmap.image.onload = function(){
+            // bitmap.scaleX = (CANVAS_WIDTH / bitmap.image.width);
+            // bitmap.scaleY = (CANVAS_HEIGHT / bitmap.image.height);
+        // }
+        // console.log(bitmap.image.width);
+        //console.log(bitmap.image.width);
+
+        _initialMenu.addChild(bitmap);
+
         /* title */
-        var title = new createjs.Text('MooseTrack', '35px Helvetica', '#333');
-        title.textAlign = "center";
-        title.x = CANVAS_WIDTH / 2;
-        title.y = CANVAS_HEIGHT / 10;
+        // var title = new createjs.Text('MooseTrack', '35px Helvetica', '#333');
+        // title.textAlign = "center";
+        // title.x = CANVAS_WIDTH / 2;
+        // title.y = CANVAS_HEIGHT / 10;
 
         /* start button and its listeners */
         _startButton = new CenteredButton("Start", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, ENABLED_BTN_COLOR);
         _startButton.onclick = _startBtnOnclick;
-        _initialMenu.addChild(title, _startButton.shape);
+        _initialMenu.addChild(_startButton.shape);
         _bigContainer.addChild(_initialMenu);
     };
 
@@ -149,16 +162,33 @@ function StartMenu() {
         var OUT = -1000;
         var HOVER = -1001;
         var CLICKING = -1002;
+        /* fonts */
+        var NORMAL_FONT = '38px Helvetica';
+        var HOVERED_FONT = '48px Helvetica';
 
         var state = OUT;
         var boxW = 150;
         var boxH = 40;
 
-        var title = new createjs.Text(text, '24px Helvetica', '#333');
-        title.x = x - title.getMeasuredWidth() / 2;
-        title.y = y - title.getMeasuredHeight() / 2;
+        var that = this;
+        var title = new createjs.Text(text, NORMAL_FONT, '#333');
+        title.x = x;
+        title.y = y;
+        title.textAlign = "center";
 
-         var box = new createjs.Shape(new createjs.Graphics().beginFill(color).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH));
+        title.addEventListener("click", function(){
+            that.onclick();
+            // console.log("hi");
+        });
+
+        // title.addEventListener("hover", function(){
+            // that.onclick();
+            // console.log("hi");
+        // });
+
+
+        var box = new createjs.Shape(new createjs.Graphics().beginFill(color).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH));
+        box.alpha = 0.0;
 
         var button = new createjs.Container();
         button.addChild(box, title);
@@ -207,15 +237,18 @@ function StartMenu() {
         }
 
         this.tick = function () {
+            /* highlight button if it's being hovered */
             if(isHovered()) {
                 if(color !== DISABLED_BTN_COLOR) {
                    box.graphics.beginFill(HOVER_BTN_COLOR).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
+                   title.font = HOVERED_FONT;
                 }
-            } else {
+            } else { 
+               title.font = NORMAL_FONT;
                box.graphics.beginFill(color).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
             }
             if (this.isClicked()) {
-                this.onclick();
+                // this.onclick();
             }
         };
 

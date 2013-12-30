@@ -4,6 +4,7 @@ moosetrack
 TODO
 
 - [X] Add start menu
+- [ ] BUG: FIX MENU BTNS
 - [ ] Snazzier game menus with images for buttons
 - [ ] Add Instructions
 - [X] Remember player scores. cookie?
