@@ -174,6 +174,9 @@ function GameLevel(lvl) {
 
             /* color ball red when player is scoring */
             ballColor = "red";
+
+            /* play counting sound */
+            createjs.Sound.play("count");
         }
 
         /* color ball based on hit or miss */
@@ -201,7 +204,10 @@ function GameLevel(lvl) {
             if( prevPercent === undefined || percentage > prevPercent ) {
                 top_scores[current_difficulty][_levelNumber] = percentage;
                 /* save cookie */
-                $.cookie('scores', JSON.stringify(top_scores));
+                $.cookie('state', JSON.stringify({
+                    top_scores: top_scores,
+                    unlocked_levels: unlocked_levels
+                }));
             }
 
             /* refresh score display */
@@ -235,6 +241,14 @@ function GameLevel(lvl) {
                     _state = PLAYING;
                 } else {
                     /* still more numbers left to count */
+                    if(_countdown === 0) {
+                        /* GO! */
+                        createjs.Sound.play("start-playing");
+                    } else {
+                        /* just a number */
+                        createjs.Sound.play("countdown");
+                    }
+
                     _displayCountDown(_countdown);
                     _countdown--;
                 }

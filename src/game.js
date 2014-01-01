@@ -34,6 +34,7 @@ var moosetrack = function() {
     var _curLevel;
     var _startMenu;
     var _stage;
+    var _messageField;
 
 
     /* holds public methods */
@@ -91,18 +92,26 @@ var moosetrack = function() {
     };
 
     ///////////////// CORE ////////////////
-    p.init = function() {
+    var _updateLoading = function () {
+        _messageField.text = "Loading " + (preload.progress*100|0) + "%"
+        console.log("HI");
+        _stage.update();
+    };
 
-        var cookieVal = $.cookie('scores');
+
+    var _doneLoading = function () {
+
+        /* play music */
+        createjs.Sound.play("background", createjs.Sound.INTERRUPT_NONE, 0, 0, -1, 0.4);
+
+
+        /* load scores if cookie exists */
+        var cookieVal = $.cookie('state');
         if(cookieVal !== undefined) {
-           top_scores = JSON.parse(cookieVal);
+           var state = JSON.parse(cookieVal);
+           top_scores = state.top_scores;
+           unlocked_levels = state.unlocked_levels;
         }
-
-        /* define canvas dimension constants */
-        var canvas = document.getElementById("gameCanvas");
-
-        OFFSET_X = canvas.offsetLeft;
-        OFFSET_Y = canvas.offsetTop;
 
 
         /* initial game state */
@@ -122,15 +131,11 @@ var moosetrack = function() {
         };
 
 
-        /* create _stage */
-        _stage = new createjs.Stage(canvas);
-
         /* background */
         _stage.addChild(new createjs.Shape(new createjs.Graphics().beginFill("#eee").drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)));
 
         /* start menu */
         _startMenu = new StartMenu();
-
 
         /* start game timer */
         if (!createjs.Ticker.hasEventListener("tick")) {
@@ -140,8 +145,59 @@ var moosetrack = function() {
 
 
         p.gotoStartMenu();
+    };
+
+    p.init = function() {
+
+        /* define canvas dimension constants */
+        var canvas = document.getElementById("gameCanvas");
+
+        OFFSET_X = canvas.offsetLeft;
+        OFFSET_Y = canvas.offsetTop;
+
+        /* create stage */
+        _stage = new createjs.Stage(canvas);
+
+        /* show loading */
+        _messageField = new createjs.Text("Loading", "bold 24px Arial", "#000");
+        _messageField.maxWidth = 1000;
+        _messageField.textAlign = "center";
+        _messageField.x = canvas.width / 2;
+        _messageField.y = canvas.height / 2;
+        _stage.addChild(_messageField);
+        _stage.update();
+
+        /* begin loading content (only sounds to load) */
+        var manifest = [
+            {id:"count", src:"assets/count.wav"},
+            {id:"countdown", src:"assets/count.wav"},
+            {id:"start-playing", src:"assets/start-playing.wav"},
+            {id:"background", src:"assets/background.mp3"}
+        ];
+
+        preload = new createjs.LoadQueue();
+        preload.installPlugin(createjs.Sound);
+        preload.addEventListener("complete", _doneLoading); // add an event listener for when load is completed
+        preload.addEventListener("progress", _updateLoading);
+        preload.loadManifest(manifest);
+
+        /* load sounds */
+        // if initializeDefaultPlugins returns false, we cannot play sound
+        // if (!createjs.Sound.initializeDefaultPlugins()) {return;}
+
+        // var audioPath = "assets/";
+
+        // createjs.Sound.alternateExtensions = ["mp3"];
+        // createjs.Sound.addEventListener("fileload", handleLoad);
+        // createjs.Sound.registerManifest(manifest, audioPath);
+
+        // function handleLoad(event) {
+        //     createjs.Sound.play("background");
+        //     console.log("done");
+        // }
 
     };
+
 
 
     var _tick = function(event) {

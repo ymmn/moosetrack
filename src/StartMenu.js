@@ -13,6 +13,7 @@ function StartMenu() {
     ////////////////  PRIVATE VARIABLES ///////////////
     var _bigContainer;
     var _startButton;
+    var _achievementButton;
     var _initialMenu;
     var _levelBtnsContainer;
     var _difficultyBtnsContainer;
@@ -27,6 +28,10 @@ function StartMenu() {
         _state = SELECT_LEVEL;
         _bigContainer.removeChild(_initialMenu);
         _createLevelSelectMenu();
+    };
+
+    var _achievementBtnOnclick = function() {
+        Clay.Achievement.showAll();
     };
 
     var _lvlBtnOnclick = function() {
@@ -75,6 +80,12 @@ function StartMenu() {
         _startButton = new CenteredButton("Start", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, ENABLED_BTN_COLOR);
         _startButton.onclick = _startBtnOnclick;
         _initialMenu.addChild(_startButton.shape);
+        _bigContainer.addChild(_initialMenu);
+
+        /* Achievements button and its listeners */
+        _achievementButton = new CenteredButton("Achievements", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 200, ENABLED_BTN_COLOR);
+        _achievementButton.onclick = _achievementBtnOnclick;
+        _initialMenu.addChild(_achievementButton.shape);
         _bigContainer.addChild(_initialMenu);
     };
 
@@ -163,12 +174,14 @@ function StartMenu() {
         var HOVER = -1001;
         var CLICKING = -1002;
         /* fonts */
-        var NORMAL_FONT = '38px Helvetica';
+        var NORMAL_FONT = '28px Helvetica';
         var HOVERED_FONT = '48px Helvetica';
 
         var state = OUT;
-        var boxW = 150;
+        var boxW = 160;
         var boxH = 40;
+        var boxY = y - boxH / 2 + 15;
+        var boxX = x - boxW / 2;
 
         var that = this;
         var title = new createjs.Text(text, NORMAL_FONT, '#333');
@@ -176,10 +189,15 @@ function StartMenu() {
         title.y = y;
         title.textAlign = "center";
 
-        title.addEventListener("click", function(){
-            that.onclick();
-            // console.log("hi");
-        });
+        // title.addEventListener("click", function(){
+        //     that.onclick();
+        //     // console.log("hi");
+        // });
+
+        // title.addEventListener("mouseover", function(){
+        //     that.onclick();
+        //     // console.log("hi");
+        // });
 
         // title.addEventListener("hover", function(){
             // that.onclick();
@@ -187,8 +205,8 @@ function StartMenu() {
         // });
 
 
-        var box = new createjs.Shape(new createjs.Graphics().beginFill(color).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH));
-        box.alpha = 0.0;
+        var box = new createjs.Shape(new createjs.Graphics().beginFill(color).drawRect(boxX, boxY, boxW, boxH));
+        box.alpha = 0.2;
 
         var button = new createjs.Container();
         button.addChild(box, title);
@@ -240,15 +258,15 @@ function StartMenu() {
             /* highlight button if it's being hovered */
             if(isHovered()) {
                 if(color !== DISABLED_BTN_COLOR) {
-                   box.graphics.beginFill(HOVER_BTN_COLOR).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
-                   title.font = HOVERED_FONT;
+                   box.graphics.beginFill(HOVER_BTN_COLOR).drawRect(boxX, boxY, boxW, boxH);
+                   // title.font = HOVERED_FONT;
                 }
             } else { 
-               title.font = NORMAL_FONT;
-               box.graphics.beginFill(color).drawRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
+               // title.font = NORMAL_FONT;
+               box.graphics.beginFill(color).drawRect(boxX, boxY, boxW, boxH);
             }
             if (this.isClicked()) {
-                // this.onclick();
+                this.onclick();
             }
         };
 
@@ -261,6 +279,7 @@ function StartMenu() {
     this.tick = function () {
         if( _state === INITIAL ) {
             _startButton.tick();
+            _achievementButton.tick();
         } else if(_state === SELECT_LEVEL) {
             for(var i = 0; i < _levelBtns.length; i++) {
                 _levelBtns[i].tick();

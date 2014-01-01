@@ -4,7 +4,11 @@ moosetrack
 TODO
 
 - [X] Add start menu
-- [ ] BUG: FIX MENU BTNS
+- [X] Make loading screen to wait on sound
+- [ ] Make loading screen to wait on images to load
+- [ ] social feature: 10 clay.io achievements
+- [ ] Sound on/off
+- [X] BUG: Not keeping lvls unlocked on refresh
 - [ ] Snazzier game menus with images for buttons
 - [ ] Add Instructions
 - [X] Remember player scores. cookie?
