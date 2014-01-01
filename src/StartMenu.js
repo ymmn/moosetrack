@@ -189,21 +189,6 @@ function StartMenu() {
         title.y = y;
         title.textAlign = "center";
 
-        // title.addEventListener("click", function(){
-        //     that.onclick();
-        //     // console.log("hi");
-        // });
-
-        // title.addEventListener("mouseover", function(){
-        //     that.onclick();
-        //     // console.log("hi");
-        // });
-
-        // title.addEventListener("hover", function(){
-            // that.onclick();
-            // console.log("hi");
-        // });
-
 
         var box = new createjs.Shape(new createjs.Graphics().beginFill(color).drawRect(boxX, boxY, boxW, boxH));
         box.alpha = 0.2;
@@ -215,7 +200,11 @@ function StartMenu() {
         var isHovered = function () {
             var mx = mousex;
             var my = mousey;
-            return (mx >= x - boxW / 2 && mx <= x + boxW / 2 && my >= y - boxH / 2 && my <= y + boxH / 2);
+            var loX = boxX;
+            var hiX = boxX + boxW;
+            var loY = boxY;
+            var hiY = boxY + boxH;
+            return (mx >= loX && mx <= hiX && my >= loY && my <= hiY);
         };
 
         this.isClicked = function () {
