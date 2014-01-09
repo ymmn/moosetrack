@@ -101,6 +101,8 @@ var moosetrack = function() {
 
     var _doneLoading = function () {
 
+        _messageField.text = "";
+
         /* play music */
         createjs.Sound.play("background", createjs.Sound.INTERRUPT_NONE, 0, 0, -1, 0.4);
 
@@ -179,12 +181,12 @@ var moosetrack = function() {
 
         preload = new createjs.LoadQueue();
         preload.installPlugin(createjs.Sound);
-        preload.addEventListener("complete", _doneLoading); // add an event listener for when load is completed
-        preload.addEventListener("progress", _updateLoading);
-        preload.loadManifest(manifest);
+        // preload.addEventListener("complete", _doneLoading); // add an event listener for when load is completed
+        // preload.addEventListener("progress", _updateLoading);
+        // preload.loadManifest(manifest);
 
         // REMOVE LATER
-        // _doneLoading();
+        _doneLoading();
 
     };
 
