@@ -7,7 +7,7 @@ var CIRCLE_RAD = [30, 22, 12, 5];
 var CIRCLE_COLOR = "red";
 var GOAL_FPS = 30;
 var PASSING_SCORE = 70;
-var DIFFICULTIES = ["Easy", "Intermediate", "Expert", "Insane"];
+var DIFFICULTIES = ["easy", "medium", "hard", "!"];
 
 
 ////////////////  GLOBAL VARIABLES ///////////////
@@ -122,6 +122,7 @@ var moosetrack = function() {
         document.body.onmousemove = function (e) {
             mousex = e.x - OFFSET_X + window.scrollX;
             mousey = e.y - OFFSET_Y + window.scrollY;
+            console.log(mousex + ", " + mousey);
         };
         document.body.onmousedown = function () {
             mouseDown = true;
@@ -132,7 +133,8 @@ var moosetrack = function() {
 
 
         /* background */
-        _stage.addChild(new createjs.Shape(new createjs.Graphics().beginFill("#eee").drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)));
+        // var bgd = new createjs.Bitmap("assets/background.jpg");
+        // _stage.addChild(bgd);
 
         /* start menu */
         _startMenu = new StartMenu();
@@ -181,20 +183,8 @@ var moosetrack = function() {
         preload.addEventListener("progress", _updateLoading);
         preload.loadManifest(manifest);
 
-        /* load sounds */
-        // if initializeDefaultPlugins returns false, we cannot play sound
-        // if (!createjs.Sound.initializeDefaultPlugins()) {return;}
-
-        // var audioPath = "assets/";
-
-        // createjs.Sound.alternateExtensions = ["mp3"];
-        // createjs.Sound.addEventListener("fileload", handleLoad);
-        // createjs.Sound.registerManifest(manifest, audioPath);
-
-        // function handleLoad(event) {
-        //     createjs.Sound.play("background");
-        //     console.log("done");
-        // }
+        // REMOVE LATER
+        // _doneLoading();
 
     };
 

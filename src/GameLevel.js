@@ -49,6 +49,11 @@ function GameLevel(lvl) {
         _levelDriver = new LevelDriver(_levelNumber);
         _bigContainer = new createjs.Container();
 
+        /* background */
+        var bgd = new createjs.Bitmap("assets/background.jpg");
+        bgd.alpha = 0.25;
+        _bigContainer.addChild(bgd);
+
         /* make the ball */
         _circle = new createjs.Shape();
         _circle.graphics.beginFill(CIRCLE_COLOR).drawCircle(0, 0, _circleRad);

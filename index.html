@@ -3,6 +3,9 @@
 <head>
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<style>
+	@font-face { font-family: 'Delicious'; src: url('assets/silom.ttf'); } 
+	</style>
 </head>
 <script src="lib/easel.js"></script>
 <script src="lib/sound.js"></script>
@@ -32,7 +35,7 @@ Clay.ready = function( fn ) {
 </script>
 <body onload="moosetrack.init();">
 	<div class="canvasContainer">
-		<canvas id="gameCanvas" width="960" height="640"></canvas>
+		<canvas style="cursor: pointer; border-style: dashed;" id="gameCanvas" width="960" height="640"></canvas>
 	</div>
 </body>
 </html>
