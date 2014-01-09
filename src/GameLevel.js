@@ -7,6 +7,7 @@ function GameLevel(lvl) {
     var PLAYING = -3;
     var DISPLAY_SCORE = -4;
     var REPLAY_AND_COUNT = -5;
+    var PREVIEW = -6;
 
     // TODO: move this elsewhere?
     var GAME_DIMS = {
@@ -34,6 +35,11 @@ function GameLevel(lvl) {
     var _playerRecordingCnt = 1;
     var _playerRecording = Array(1000);
     var _playerRecordingLine;
+    var _playCircle;
+    /* preview phase */
+    var _previewCircle;
+    var _previewLevelLine;
+
     var _terrainLine;
     var _scoreTxt;
     var _replayCircle;
@@ -55,17 +61,24 @@ function GameLevel(lvl) {
         _bigContainer.addChild(bgd);
 
         /* make the ball */
-        _circle = new createjs.Shape();
-        _circle.graphics.beginFill(CIRCLE_COLOR).drawCircle(0, 0, _circleRad);
+        _playCircle = new createjs.Shape();
+        _playCircle.graphics.beginFill(CIRCLE_COLOR).drawCircle(0, 0, _circleRad);
         _replayCircle = new createjs.Shape();
         _replayCircle.graphics.beginStroke("black").drawCircle(0, 0, _circleRad);
         _replayCircle.alpha = 0.25;
+        _previewCircle = new createjs.Shape();
 
         /* make player recording line */
         _playerRecordingLine = new createjs.Shape();
         var graphics = _playerRecordingLine.graphics;
-        graphics.setStrokeStyle(1);
+        graphics.setStrokeStyle(3);
         graphics.beginStroke("black");
+
+        /* make preview line */
+        _previewLevelLine = new createjs.Shape();
+        var graphics = _previewLevelLine.graphics;
+        graphics.setStrokeStyle(3);
+        graphics.beginStroke("green");
 
         /* make terrain shape */
         _terrainLine = new createjs.Shape();
@@ -73,7 +86,6 @@ function GameLevel(lvl) {
         graphics.setStrokeStyle(1);
         graphics.beginStroke("black");
 
-        _levelDriver.setCircle(_circle);
         _levelNameContainer = _makeCenteredTextContainer(["Level " + _levelNumber]).container;
         _bigContainer.addChild(_levelNameContainer);
     };
@@ -83,8 +95,8 @@ function GameLevel(lvl) {
      * Return true if user should get a point
      */
     var _mouseWithinBall = function () {
-        var dx = Math.abs(mousex - _circle.x);
-        var dy = Math.abs(mousey - _circle.y);
+        var dx = Math.abs(mousex - _playCircle.x);
+        var dy = Math.abs(mousey - _playCircle.y);
         return dx <= _circleRad && dy <= _circleRad;
     };
 
@@ -161,7 +173,12 @@ function GameLevel(lvl) {
     var _scorePhase = function () {
         /* draw the player's replay line*/
         var v = _playerRecording[_playerRecordingCnt];
-        _playerRecordingLine.graphics.lineTo(v.x(), v.y());
+
+        if( _timer % 3 === 0 ) {
+            _playerRecordingLine.graphics.moveTo(v.x(), v.y());
+        } else{
+            _playerRecordingLine.graphics.lineTo(v.x(), v.y());
+        }
 
         var ballColor = "black";
 
@@ -231,9 +248,38 @@ function GameLevel(lvl) {
             /* move on to next state once timer is reached */
             if (_timer === LEVEL_NAME_TIMER) {
                 _bigContainer.removeChild(_levelNameContainer);
-                _state = COUNTING_DOWN;
-                _bigContainer.addChild(_circle);
+                _state = PREVIEW;
+                /* init preview phase */
+                _instructionsLabel = new createjs.Text("Track the ball!", "28px silom", "#000");
+                _instructionsLabel.x = CANVAS_WIDTH / 2;
+                _instructionsLabel.y = 150;
+                _instructionsLabel.textAlign = "center";
+                _bigContainer.addChild(_instructionsLabel);
+                /* set dummy circle */
+                _levelDriver.setCircle(_previewCircle);
+                /* initialize line */
+                _previewLevelLine.graphics.moveTo(_previewCircle.x, _previewCircle.y);
+                _bigContainer.addChild(_previewLevelLine);
+
+
                 _createTerrain();
+                _timer = 0;
+            }
+        } /* showing the player how this level goes as well as instructions */
+        else if (_state == PREVIEW) {
+            /* draw a line previewing the level's path */
+            if( !_levelDriver.done() ) {
+                _levelDriver.play();
+                if( _timer % 3 == 0 ) {
+                    _previewLevelLine.graphics.moveTo(_previewCircle.x, _previewCircle.y);
+                } else {
+                    _previewLevelLine.graphics.lineTo(_previewCircle.x, _previewCircle.y);
+                }
+            } else {
+                _bigContainer.removeChild(_instructionsLabel);
+                _levelDriver.setCircle(_playCircle);
+                _bigContainer.addChild(_playCircle);
+                _state = COUNTING_DOWN;
                 _timer = 0;
             }
         } /* Counting down for the game to start*/
@@ -272,6 +318,7 @@ function GameLevel(lvl) {
                 _state = REPLAY_AND_COUNT;
                 _possScore--;
                 _timer = 0;
+                _previewLevelLine.alpha = 0.2;
                 _playerRecordingLine.graphics.moveTo(_playerRecording[0].x(), _playerRecording[0].y());
                 _bigContainer.addChild(_playerRecordingLine);
                 _bigContainer.addChild(_replayCircle);

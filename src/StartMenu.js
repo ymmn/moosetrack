@@ -72,7 +72,7 @@ function StartMenu() {
 
 
         /* background */
-        var bgd = new createjs.Bitmap("assets/startmenu.jpg");
+        var bgd = new createjs.Bitmap("assets/startscreen1.png");
         _initialMenu.addChild(bgd);
         // var overlay = new createjs.Bitmap("assets/achievementscircle.png");
         // overlay.regX = 208;
@@ -187,22 +187,26 @@ function StartMenu() {
             {
                 x: 193,
                 y: 217,
-                rad: 10
+                rad: 10,
+                size: 4
             },
             {
                 x: 256,
                 y: 308,
-                rad: 20
+                rad: 20,
+                size: 12
             },
             {
                 x: 359,
                 y: 399,
-                rad: 32
+                rad: 32,
+                size: 14
             },
             {
                 x: 514,
                 y: 478,
-                rad: 46
+                rad: 46,
+                size: 20
             }
         ];
         _difficultyBtnsContainer = new createjs.Container();
@@ -217,7 +221,13 @@ function StartMenu() {
         //     var btnX = 200 + diffBtnsGap*i;
         //     var btnY = 500;
             console.log(diffBtnLocs[l - i - 1].x);
-            var btn = new CenteredButton(diffBtnLocs[l - i - 1].x, diffBtnLocs[l - i - 1].y, diffBtnLocs[l - i - 1].rad);
+            var btn = new CenteredButton(diffBtnLocs[l - i - 1].x, diffBtnLocs[l - i - 1].y, diffBtnLocs[l - i - 1].rad,
+                {
+                   // fillColor: "red",
+                   // hoverColor: "black",
+                   // text: DIFFICULTIES[i],
+                   // font: diffBtnLocs[l - i - 1].size + "px silom"
+                });
             btn.diffInd = i;
             btn.onclick = _difficultyBtnOnclick;
             _difficultyBtns.push(btn);
@@ -272,6 +282,12 @@ function StartMenu() {
         var button = new createjs.Container();
         var that = this;
 
+        /* decide font */
+        font = NORMAL_FONT;
+        if (options.font !== undefined) {
+            font = options.font;
+        }
+
         /* optional background image that rotates on hover */
         var background = [];
         if(options.background !== undefined) {
@@ -286,21 +302,22 @@ function StartMenu() {
             }
         }
 
-        /* text */
-        if( options.text !== undefined ) {
-            var title = new createjs.Text(options.text, NORMAL_FONT, '#FFF');
-            title.x = x;
-            title.y = y - (title.getMeasuredHeight() / 2);
-            title.textAlign = "center";
-            button.addChild(title);
-        }
-
         /* fill */
         if( options.fillColor !== undefined ) {
             var fillCircle = new createjs.Shape();
             fillCircle.graphics.beginFill(options.fillColor).drawCircle(x, y, radius);
             button.addChild(fillCircle);
         }
+
+        /* text */
+        if( options.text !== undefined ) {
+            var title = new createjs.Text(options.text, font, '#FFF');
+            title.x = x;
+            title.y = y - (title.getMeasuredHeight() / 2);
+            title.textAlign = "center";
+            button.addChild(title);
+        }
+
 
         /* highlight */
         var highlightCircle = new createjs.Shape();
@@ -355,6 +372,9 @@ function StartMenu() {
                 for(var i = 0; i < background.length; i++) {
                     background[i].rotation += 1;
                 }
+                if(options.hoverColor !== undefined) {
+                    fillCircle.graphics.clear().beginFill(options.hoverColor).drawCircle(x, y, radius);
+                }
                 // console.log("HI");
                 // highlightCircle.graphics.setStrokeStyle(2)
                 //     .beginStroke(highlightColor)
@@ -364,7 +384,10 @@ function StartMenu() {
                 // that.shape.filters = [blurFilter];
             } else {
                // title.font = NORMAL_FONT;
-               highlightCircle.graphics.clear();
+                if(options.hoverColor !== undefined) {
+                    fillCircle.graphics.clear().beginFill(options.fillColor).drawCircle(x, y, radius);
+                }
+                highlightCircle.graphics.clear();
             }
             if (this.isClicked()) {
                 this.onclick();
