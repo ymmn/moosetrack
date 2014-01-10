@@ -102,7 +102,7 @@ function StartMenu() {
 
 
         /* background */
-        var bgd = new createjs.Bitmap("assets/startscreen-late.png");
+        var bgd = new createjs.Bitmap("assets/startscreen(nowords).png");
         _initialMenu.addChild(bgd);
 
         /* logo */
@@ -112,11 +112,9 @@ function StartMenu() {
 
 
         /* start button and its listeners */
-        _startButton = new CenteredButton(697, 471, 105,
+        _startButton = new CenteredButton(698, 458, 105,
             {
-                text: "start",
                 background: ["assets/startcircle1.png", "assets/startcircle2.png"],
-                textColor: "black"
             });
         _startButton.onclick = _startBtnOnclick;
         _initialMenu.addChild(_startButton.shape);
@@ -127,6 +125,7 @@ function StartMenu() {
             background: ["assets/achievementscircle.png"],
             text: "achievements",
             textColor: "black",
+            hoverTextColor: "red",
             font: "20px silom"
         });
         _achievementButton.onclick = _achievementBtnOnclick;
@@ -167,7 +166,11 @@ function StartMenu() {
             var lvl = i + 1;
             var x = 530 + lvlBtnsGap * i;
             var y = 240;
-            var btn = new CenteredButton(x, y, 9, { fillColor: color });
+            var btn = new CenteredButton(x, y, 9,
+                {
+                    fillColor: color,
+                    hoverColor: "#AAA"
+                });
             btn.lvl = lvl;
             btn.x = x;
             btn.y = y;
@@ -201,7 +204,6 @@ function StartMenu() {
 
         // /* make a button for each difficulty */
         _difficultyBtns = [];
-
         _difficultyBtnsContainer = new createjs.Container();
         var l = DIFFICULTIES.length;
         for(var i = 0; i < l; i++) {
@@ -304,8 +306,9 @@ function StartMenu() {
         }
 
         /* text */
+        var title;
         if( options.text !== undefined ) {
-            var title = new createjs.Text(options.text, font, textColor);
+            title = new createjs.Text(options.text, font, textColor);
             title.x = x;
             title.y = y - (title.getMeasuredHeight() / 2);
             title.textAlign = "center";
@@ -372,6 +375,9 @@ function StartMenu() {
                 if( options.onhover !== undefined ) {
                     options.onhover(that);
                 }
+                if(options.hoverTextColor !== undefined) {
+                    title.color = options.hoverTextColor;
+                }
                 // highlightCircle.graphics.setStrokeStyle(2)
                 //     .beginStroke(highlightColor)
                 //     // .beginRadialGradientStroke(["#F00","#00F"], [0, 1], x, y, radius-2, x, y, radius)
@@ -380,6 +386,7 @@ function StartMenu() {
                 if(options.hoverColor !== undefined) {
                     fillCircle.graphics.clear().beginFill(options.fillColor).drawCircle(x, y, radius);
                 }
+                if(title !== undefined) title.color = textColor;
                 highlightCircle.graphics.clear();
             }
             if (this.isClicked()) {

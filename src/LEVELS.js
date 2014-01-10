@@ -154,6 +154,45 @@ var LEVELS = {
 			return c.y >= 600;
 		}
 
+	},
+
+	7: {
+
+		name: "Roller Coaster",
+
+		initialize: function(c) {
+			c.x = 100;
+			c.y = 80;
+			c.initx = 100;
+			c.inity = 80;
+			c.velocity = $V([0, 2.5]);
+		},
+
+		terrain: [
+			$V([0, 150]),
+			$V([CANVAS_WIDTH, 150])
+		],
+
+//y = +- sqrt(r^2 - x^2)
+		play: function(c) {
+			if( c.x < 150 ) {
+				var xx = c.x - 125;
+				xx = xx * xx;
+				c.x += 1;
+				c.y = c.inity + Math.sqrt(625 - xx);
+			} else {
+				var xx = c.x - 125;
+				xx = xx * xx;
+				c.x -= 1;
+				c.y = c.inity - Math.sqrt(625 - xx);
+				if( c.x === 100 ) c.done = true;
+			}
+		},
+
+		done: function(c) {
+			return c.done;
+		}
+
 	}
 
 };
