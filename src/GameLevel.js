@@ -155,7 +155,7 @@ function GameLevel(lvl) {
                 console.log(terrain[i].elements);
                 console.log(terrain[0].elements);
             }
-            _bigContainer.addChild(_terrainLine);
+            // _bigContainer.addChild(_terrainLine);
         }
     };
 
@@ -250,7 +250,7 @@ function GameLevel(lvl) {
                 _bigContainer.removeChild(_levelNameContainer);
                 _state = PREVIEW;
                 /* init preview phase */
-                _instructionsLabel = new createjs.Text("Track the ball!", "28px silom", "#000");
+                _instructionsLabel = new createjs.Text("Track the ball with the mouse cursor", "28px silom", "#000");
                 _instructionsLabel.x = CANVAS_WIDTH / 2;
                 _instructionsLabel.y = 150;
                 _instructionsLabel.textAlign = "center";

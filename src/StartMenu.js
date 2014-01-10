@@ -8,7 +8,32 @@ function StartMenu() {
     var HOVER_BTN_COLOR = "#BBB";
     var SELECTED_BTN_COLOR = "#555";
     var DISABLED_BTN_COLOR = "#CCC";
-
+    var DIFFICULTY_BTN_LOCATIONS = [
+        {
+            x: 193,
+            y: 217,
+            rad: 10,
+            size: 4
+        },
+        {
+            x: 256,
+            y: 306,
+            rad: 20,
+            size: 12
+        },
+        {
+            x: 358,
+            y: 397,
+            rad: 32,
+            size: 14
+        },
+        {
+            x: 514,
+            y: 478,
+            rad: 46,
+            size: 20
+        }
+    ];
 
     ////////////////  PRIVATE VARIABLES ///////////////
     var _bigContainer;
@@ -18,6 +43,8 @@ function StartMenu() {
     var _levelBtnsContainer;
     var _difficultyBtnsContainer;
     var _levelSelectMenu;
+    var _difficultySelectedGlow;
+    var _tempGlow;
     var _levelBtns;
     var _levelLabel;
     var _difficultyLabel;
@@ -44,8 +71,7 @@ function StartMenu() {
         _selectedLevel = this.lvl;
         _selectedLevelCircle.x = this.x;
         _selectedLevelCircle.y = this.y;
-        console.log("now " + this.x + " " + this.y);
-        _levelLabel.text = "Level " + _selectedLevel;
+        _levelLabel.text = LEVELS[_selectedLevel].name;
     };
 
     var _goBtnOnclick = function () {
@@ -56,6 +82,10 @@ function StartMenu() {
     var _difficultyBtnOnclick = function() {
         current_difficulty = this.diffInd;
         _difficultyLabel.text = DIFFICULTIES[current_difficulty];
+        _difficultySelectedGlow.x = this.loc.x;
+        _difficultySelectedGlow.y = this.loc.y;
+        _difficultySelectedGlow.scaleX = this.loc.rad / 36;
+        _difficultySelectedGlow.scaleY = this.loc.rad / 36;
     };
 
 
@@ -72,46 +102,33 @@ function StartMenu() {
 
 
         /* background */
-        var bgd = new createjs.Bitmap("assets/startscreen1.png");
+        var bgd = new createjs.Bitmap("assets/startscreen-late.png");
         _initialMenu.addChild(bgd);
-        // var overlay = new createjs.Bitmap("assets/achievementscircle.png");
-        // overlay.regX = 208;
-        // overlay.regY = 456;
-        // overlay.x = 0;
-        // overlay.y = 0;
-        // _initialMenu.addChild(overlay);
-        // window.setInterval(function(){
-        //     overlay.rotation += 1;
-        // }, 300);
 
         /* logo */
         var bitmap = new createjs.Bitmap("assets/logo.jpg");
         bitmap.y -= 200;
         bitmap.x += 80;
-        // bitmap.image.onload = function(){
-            // bitmap.scaleX = (CANVAS_WIDTH / bitmap.image.width);
-            // bitmap.scaleY = (CANVAS_HEIGHT / bitmap.image.height);
-        // }
-        // console.log(bitmap.image.width);
-        //console.log(bitmap.image.width);
 
-        // _initialMenu.addChild(bitmap);
-
-        /* title */
-        // var title = new createjs.Text('MooseTrack', '35px Helvetica', '#333');
-        // title.textAlign = "center";
-        // title.x = CANVAS_WIDTH / 2;
-        // title.y = CANVAS_HEIGHT / 10;
 
         /* start button and its listeners */
-        _startButton = new CenteredButton(730, 445, 105,
-            {background: ["assets/startcircle1.png", "assets/startcircle2.png", "assets/startcircle3.png"]});
+        _startButton = new CenteredButton(697, 471, 105,
+            {
+                text: "start",
+                background: ["assets/startcircle1.png", "assets/startcircle2.png"],
+                textColor: "black"
+            });
         _startButton.onclick = _startBtnOnclick;
         _initialMenu.addChild(_startButton.shape);
         _bigContainer.addChild(_initialMenu);
 
         /* Achievements button and its listeners */
-        _achievementButton = new CenteredButton(222, 450, 85, {background: ["assets/achievementscircle.png"]});
+        _achievementButton = new CenteredButton(208, 450, 85, {
+            background: ["assets/achievementscircle.png"],
+            text: "achievements",
+            textColor: "black",
+            font: "20px silom"
+        });
         _achievementButton.onclick = _achievementBtnOnclick;
         _initialMenu.addChild(_achievementButton.shape);
         _bigContainer.addChild(_initialMenu);
@@ -122,31 +139,34 @@ function StartMenu() {
 
         _levelSelectMenu = new createjs.Container();
 
+        /* difficulty selected glowing ball */
+        _difficultySelectedGlow = new createjs.Bitmap("assets/glowingball.png");
+        _difficultySelectedGlow.regX = 75;
+        _difficultySelectedGlow.regY = 75;
+        _levelSelectMenu.addChild(_difficultySelectedGlow);
+
+        /* on hover glow */
+        _tempGlow = new createjs.Bitmap("assets/glowingball.png");
+        _tempGlow.regX = 75;
+        _tempGlow.regY = 75;
+        _tempGlow.alpha = 0;
+        _levelSelectMenu.addChild(_tempGlow);
+
+        /* background */
         var bgd = new createjs.Bitmap("assets/levelscreen(nogo).png");
         _levelSelectMenu.addChild(bgd);
 
-        /* title */
-        // var title = new createjs.Text('Select Level', '35px Helvetica', '#333');
-        // title.textAlign = "center";
-        // title.x = CANVAS_WIDTH / 2;
-        // title.y = CANVAS_HEIGHT / 10;
 
-        // _levelSelectMenu.addChild(title);
 
         /* make a button for each level */
         _levelBtns = [];
         _levelBtnsContainer = new createjs.Container();
         var lvlBtnsGap = 37;
         for(var i = 0; i < 9; i++) {
-        //     var color = DISABLED_BTN_COLOR;
             var color = "#EEE";
             var lvl = i + 1;
-        //     if( unlocked_levels[current_difficulty][lvl] ) {
-        //         color = ENABLED_BTN_COLOR;
-        //     }
-        //     var y = 150 + lvlBtnsGap*i;
             var x = 530 + lvlBtnsGap * i;
-            var y = 240; 
+            var y = 240;
             var btn = new CenteredButton(x, y, 9, { fillColor: color });
             btn.lvl = lvl;
             btn.x = x;
@@ -170,95 +190,63 @@ function StartMenu() {
         //         _levelBtnsContainer.addChild(topscore);
         //     }
         }
-        // _levelBtnsContainer.x = 0;
-        // _levelBtnsContainer.y = 0;
         _levelSelectMenu.addChild(_levelBtnsContainer);
 
         /* selected level Circle */
         _selectedLevelCircle = new createjs.Shape();
         _selectedLevelCircle.graphics.beginFill("#333").drawCircle(0, 0, 15);
-        _selectedLevelCircle.x = 530;
+        _selectedLevelCircle.x = 530 + lvlBtnsGap * (_selectedLevel - 1);
         _selectedLevelCircle.y = 240;
         _levelSelectMenu.addChild(_selectedLevelCircle);
 
         // /* make a button for each difficulty */
         _difficultyBtns = [];
-        var diffBtnLocs = [
-            {
-                x: 193,
-                y: 217,
-                rad: 10,
-                size: 4
-            },
-            {
-                x: 256,
-                y: 308,
-                rad: 20,
-                size: 12
-            },
-            {
-                x: 359,
-                y: 399,
-                rad: 32,
-                size: 14
-            },
-            {
-                x: 514,
-                y: 478,
-                rad: 46,
-                size: 20
-            }
-        ];
+
         _difficultyBtnsContainer = new createjs.Container();
-        // var diffBtnsGap = 180;
         var l = DIFFICULTIES.length;
         for(var i = 0; i < l; i++) {
-            /* color button based on whether or not it's active */
-            var color = ENABLED_BTN_COLOR;
-            if( i === current_difficulty ) {
-                color = SELECTED_BTN_COLOR;
-            }
-        //     var btnX = 200 + diffBtnsGap*i;
-        //     var btnY = 500;
-            console.log(diffBtnLocs[l - i - 1].x);
-            var btn = new CenteredButton(diffBtnLocs[l - i - 1].x, diffBtnLocs[l - i - 1].y, diffBtnLocs[l - i - 1].rad,
+            var btn = new CenteredButton(DIFFICULTY_BTN_LOCATIONS[l - i - 1].x, DIFFICULTY_BTN_LOCATIONS[l - i - 1].y, DIFFICULTY_BTN_LOCATIONS[l - i - 1].rad,
                 {
-                   // fillColor: "red",
-                   // hoverColor: "black",
-                   // text: DIFFICULTIES[i],
-                   // font: diffBtnLocs[l - i - 1].size + "px silom"
-                });
+                    onhover : function(btn) {
+                        _tempGlow.x = btn.loc.x;
+                        _tempGlow.y = btn.loc.y;
+                        _tempGlow.scaleX = btn.loc.rad / 36;
+                        _tempGlow.scaleY = btn.loc.rad / 36;
+                        _tempGlow.alpha = 1;
+                    }
+                }
+            );
             btn.diffInd = i;
+            btn.loc = DIFFICULTY_BTN_LOCATIONS[l - i - 1];
             btn.onclick = _difficultyBtnOnclick;
             _difficultyBtns.push(btn);
             _difficultyBtnsContainer.addChild(btn.shape);
-            // _bigContainer.addChild(btn.shape);
-
-        //     /* draw the circle size of that difficulty */
-        //     var circleY = btnY - btn.height()/2 - CIRCLE_RAD[i] - 8;
-        //     var circ = new createjs.Shape();
-        //     circ.graphics.beginFill(CIRCLE_COLOR).drawCircle(btnX, circleY, CIRCLE_RAD[i]);
-        //     _difficultyBtnsContainer.addChild(circ);
         }
         _levelSelectMenu.addChild(_difficultyBtnsContainer);
+
 
         /* GO button */
         _goBtn = new CenteredButton(777, 505, 70, { text: "go", background: ["assets/greenthing.png"] });
         _goBtn.onclick = _goBtnOnclick;
         _levelSelectMenu.addChild(_goBtn.shape);
 
+
         /* selected level label */
-        _levelLabel = new createjs.Text("Level " + _selectedLevel, "28px silom", "#333");
+        _levelLabel = new createjs.Text(LEVELS[_selectedLevel].name, "28px silom", "#333");
         _levelLabel.x = 596;
         _levelLabel.y = 175;
         _levelSelectMenu.addChild(_levelLabel);
 
+
         /* selected difficulty label */
         _difficultyLabel = new createjs.Text(DIFFICULTIES[current_difficulty], "28px silom", "#333");
-        _difficultyLabel.x = 195;
+        _difficultyLabel.x = 195 + lvlBtnsGap * _selectedLevel;
         _difficultyLabel.y = 570;
         _levelSelectMenu.addChild(_difficultyLabel);
 
+
+        /* now place glow on selected difficulty */
+        _difficultyBtns[current_difficulty].onclick();
 
         _bigContainer.addChild(_levelSelectMenu);
     };
@@ -283,7 +271,7 @@ function StartMenu() {
         var that = this;
 
         /* decide font */
-        font = NORMAL_FONT;
+        var font = NORMAL_FONT;
         if (options.font !== undefined) {
             font = options.font;
         }
@@ -309,9 +297,15 @@ function StartMenu() {
             button.addChild(fillCircle);
         }
 
+        /* define text color */
+        var textColor = "#FFF";
+        if( options.textColor !== undefined) {
+            textColor = options.textColor;
+        }
+
         /* text */
         if( options.text !== undefined ) {
-            var title = new createjs.Text(options.text, font, '#FFF');
+            var title = new createjs.Text(options.text, font, textColor);
             title.x = x;
             title.y = y - (title.getMeasuredHeight() / 2);
             title.textAlign = "center";
@@ -370,20 +364,19 @@ function StartMenu() {
             /* highlight button if it's being hovered */
             if(isHovered()) {
                 for(var i = 0; i < background.length; i++) {
-                    background[i].rotation += 1;
+                    background[i].rotation += (i % 2 == 0 ? 1 : -1) * 2;
                 }
                 if(options.hoverColor !== undefined) {
                     fillCircle.graphics.clear().beginFill(options.hoverColor).drawCircle(x, y, radius);
                 }
-                // console.log("HI");
+                if( options.onhover !== undefined ) {
+                    options.onhover(that);
+                }
                 // highlightCircle.graphics.setStrokeStyle(2)
                 //     .beginStroke(highlightColor)
                 //     // .beginRadialGradientStroke(["#F00","#00F"], [0, 1], x, y, radius-2, x, y, radius)
                 //     .drawCircle(x, y, radius);
-                // var blurFilter = new createjs.BlurFilter(5, 5, 1);
-                // that.shape.filters = [blurFilter];
             } else {
-               // title.font = NORMAL_FONT;
                 if(options.hoverColor !== undefined) {
                     fillCircle.graphics.clear().beginFill(options.fillColor).drawCircle(x, y, radius);
                 }
@@ -405,6 +398,7 @@ function StartMenu() {
             _startButton.tick();
             _achievementButton.tick();
         } else if(_state === SELECT_LEVEL) {
+            _tempGlow.alpha = 0;
             for(var i = 0; i < _levelBtns.length; i++) {
                 _levelBtns[i].tick();
             }
@@ -416,7 +410,6 @@ function StartMenu() {
     };
 
     this.refresh = function() {
-        console.log("REFRESH");
         if( _state === SELECT_LEVEL ) {
             _createLevelSelectMenu();
         }
