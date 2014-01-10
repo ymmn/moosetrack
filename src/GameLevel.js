@@ -34,6 +34,7 @@ function GameLevel(lvl) {
     var _possScore = 0;
     var _playerRecordingCnt = 1;
     var _playerRecording = Array(1000);
+    var _ballRecording = Array(1000);
     var _playerRecordingLine;
     var _playCircle;
     /* preview phase */
@@ -183,7 +184,8 @@ function GameLevel(lvl) {
         var ballColor = "black";
 
         /* move the ghost ball */
-        _levelDriver.play();
+        _replayCircle.x = _ballRecording[_playerRecordingCnt].x();
+        _replayCircle.y = _ballRecording[_playerRecordingCnt].y();
 
         /* calculate percentage to tenth place */
         var percentage = Math.round((_accScore / (_possScore -1)) * 1000) / 10;
@@ -268,14 +270,26 @@ function GameLevel(lvl) {
         } /* showing the player how this level goes as well as instructions */
         else if (_state == PREVIEW) {
             /* draw a line previewing the level's path */
-            if( !_levelDriver.done() ) {
-                _levelDriver.play();
-                if( _timer % 3 == 0 ) {
-                    _previewLevelLine.graphics.moveTo(_previewCircle.x, _previewCircle.y);
-                } else {
-                    _previewLevelLine.graphics.lineTo(_previewCircle.x, _previewCircle.y);
+            var doneWithPreview = false;
+            if( _levelDriver.noPreview() ){
+                if(_timer >= 30) {
+                    doneWithPreview = true;
                 }
-            } else {
+            } else{
+                if( !_levelDriver.done() ) {
+                    _levelDriver.play();
+                    if( _timer % 3 === 0 ) {
+                        _previewLevelLine.graphics.moveTo(_previewCircle.x, _previewCircle.y);
+                    } else {
+                        _previewLevelLine.graphics.lineTo(_previewCircle.x, _previewCircle.y);
+                    }
+                } else {
+                    doneWithPreview = true;
+
+                }
+            }
+
+            if(doneWithPreview) {
                 _bigContainer.removeChild(_instructionsLabel);
                 _levelDriver.setCircle(_playCircle);
                 _bigContainer.addChild(_playCircle);
@@ -311,6 +325,7 @@ function GameLevel(lvl) {
             if (!_levelDriver.done()) {
                 _playerScore[_possScore] = _mouseWithinBall();
                 _playerRecording[_possScore] = $V([mousex, mousey]);
+                _ballRecording[_possScore] = $V([_playCircle.x, _playCircle.y]);
                 _levelDriver.play();
                 _possScore++;
             } else {

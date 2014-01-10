@@ -36,24 +36,28 @@ function StartMenu() {
     ];
 
     ////////////////  PRIVATE VARIABLES ///////////////
-    var _bigContainer;
+    /* start menu */
     var _startButton;
     var _achievementButton;
+    var _creditsButton;
     var _initialMenu;
+    /* level select */
     var _levelBtnsContainer;
     var _difficultyBtnsContainer;
-    var _levelSelectMenu;
     var _difficultySelectedGlow;
     var _tempGlow;
+    var _levelSelectMenu;
     var _levelBtns;
     var _levelLabel;
     var _difficultyLabel;
     var _goBtn;
-    var _selectedLevel = 1;
     var _selectedLevelCircle;
     var _difficultyBtns;
+    /* state */
+    var _selectedLevel = 1;
     var _state = INITIAL;
     var that = this;
+    var _bigContainer;
 
 
     ///////////////  BTN CLICK HANDLERS ////////////////
@@ -67,11 +71,21 @@ function StartMenu() {
         Clay.Achievement.showAll();
     };
 
+    var _creditsBtnOnclick = function() {
+        alert("sup!");
+    };
+
     var _lvlBtnOnclick = function() {
         _selectedLevel = this.lvl;
         _selectedLevelCircle.x = this.x;
         _selectedLevelCircle.y = this.y;
         _levelLabel.text = LEVELS[_selectedLevel].name;
+
+        /* Display the top score for this level */
+        var ts_percent = top_scores[current_difficulty][this.lvl];
+        if(ts_percent === undefined) return;
+        var grade = moosetrack.getGradeFromPercentage(ts_percent);
+        _levelLabel.text = LEVELS[_selectedLevel].name + ": " + grade + "  " + ts_percent;
     };
 
     var _goBtnOnclick = function () {
@@ -115,6 +129,10 @@ function StartMenu() {
         _startButton = new CenteredButton(698, 458, 105,
             {
                 background: ["assets/startcircle1.png", "assets/startcircle2.png"],
+                text: "s  t  a  r  t",
+                textColor: "black",
+                hoverTextColor: "red",
+                font: "36px myriad-pro"
             });
         _startButton.onclick = _startBtnOnclick;
         _initialMenu.addChild(_startButton.shape);
@@ -123,13 +141,30 @@ function StartMenu() {
         /* Achievements button and its listeners */
         _achievementButton = new CenteredButton(208, 450, 85, {
             background: ["assets/achievementscircle.png"],
-            text: "achievements",
+            text: "a c h i e v e m e n t s",
             textColor: "black",
             hoverTextColor: "red",
-            font: "20px silom"
+            font: "19px myriad-pro"
         });
         _achievementButton.onclick = _achievementBtnOnclick;
         _initialMenu.addChild(_achievementButton.shape);
+
+        /* credits button and its listeners */
+        _creditsButton = new CenteredButton(140, 600, 0, {
+            text: "c r e d i t s",
+            isHovered: function() {
+                var mx = mousex;
+                var my = mousey;
+                return mx > 40 && mx < 240 && my > 580 && my < 620;
+            },
+            textColor: "#999",
+            hoverTextColor: "#900",
+            font: "48px myriad-pro"
+        });
+        _creditsButton.onclick = _creditsBtnOnclick;
+        _initialMenu.addChild(_creditsButton.shape);
+
+
         _bigContainer.addChild(_initialMenu);
     };
 
@@ -198,8 +233,6 @@ function StartMenu() {
         /* selected level Circle */
         _selectedLevelCircle = new createjs.Shape();
         _selectedLevelCircle.graphics.beginFill("#333").drawCircle(0, 0, 15);
-        _selectedLevelCircle.x = 530 + lvlBtnsGap * (_selectedLevel - 1);
-        _selectedLevelCircle.y = 240;
         _levelSelectMenu.addChild(_selectedLevelCircle);
 
         // /* make a button for each difficulty */
@@ -242,13 +275,15 @@ function StartMenu() {
 
         /* selected difficulty label */
         _difficultyLabel = new createjs.Text(DIFFICULTIES[current_difficulty], "28px silom", "#333");
-        _difficultyLabel.x = 195 + lvlBtnsGap * _selectedLevel;
+        _difficultyLabel.x = 195;
         _difficultyLabel.y = 570;
         _levelSelectMenu.addChild(_difficultyLabel);
 
 
         /* now place glow on selected difficulty */
         _difficultyBtns[current_difficulty].onclick();
+        /* and auto select first level */
+        _levelBtns[0].onclick();
 
         _bigContainer.addChild(_levelSelectMenu);
     };
@@ -334,6 +369,9 @@ function StartMenu() {
             var dy = Math.abs(my - y);
             return Math.sqrt( dx*dx + dy*dy ) <= radius;
         };
+        if (options.isHovered !== undefined) {
+            isHovered = options.isHovered;
+        }
 
         this.isClicked = function () {
             var in_btn = isHovered();
@@ -404,6 +442,7 @@ function StartMenu() {
         if( _state === INITIAL ) {
             _startButton.tick();
             _achievementButton.tick();
+            _creditsButton.tick();
         } else if(_state === SELECT_LEVEL) {
             _tempGlow.alpha = 0;
             for(var i = 0; i < _levelBtns.length; i++) {

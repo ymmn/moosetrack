@@ -18,4 +18,8 @@ function LevelDriver(lvl) {
         _myLvl.play(_circle);
     };
 
+    this.noPreview = function() {
+        return _myLvl.no_preview;
+    };
+
 }
