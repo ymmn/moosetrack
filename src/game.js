@@ -16,10 +16,6 @@ var mousex;
 var mousey;
 var mouseDown = false;
 
-/* game state */
-var current_difficulty = 0;
-var unlocked_levels = [{ 1: true }, {1: true}, {1: true}, {1: true}];
-var top_scores = [{}, {}, {}, {}];
 
 
 
@@ -39,6 +35,12 @@ var moosetrack = function() {
 
     /* holds public methods */
     var p = {};
+
+    /* game state */
+    p.current_difficulty = 0;
+    p.top_scores = [{}, {}, {}, {}];
+    p.num_rounds = 0;
+    p.soundOn = true;
 
 
     ///////////////// HELPERS ////////////////
@@ -68,6 +70,10 @@ var moosetrack = function() {
         _stage.addChild(_startMenu.getContainer());
     };
 
+    p.toggleSound = function() {
+        p.soundOn = !p.soundOn;
+    };
+
     p.getGradeFromPercentage = function(percentage) {
         var grade = "F";
         if (percentage > 98) {
@@ -93,7 +99,7 @@ var moosetrack = function() {
 
     ///////////////// CORE ////////////////
     var _updateLoading = function () {
-        _messageField.text = "Loading " + (preload.progress*100|0) + "%"
+        _messageField.text = "Loading " + (preload.progress*100|0) + "%";
         console.log("HI");
         _stage.update();
     };
@@ -111,8 +117,8 @@ var moosetrack = function() {
         var cookieVal = $.cookie('state');
         if(cookieVal !== undefined) {
            var state = JSON.parse(cookieVal);
-           top_scores = state.top_scores;
-           unlocked_levels = state.unlocked_levels;
+           p.top_scores = state.top_scores;
+           p.num_rounds = state.num_rounds;
         }
 
 
@@ -189,7 +195,6 @@ var moosetrack = function() {
         _doneLoading();
 
     };
-
 
 
     var _tick = function(event) {

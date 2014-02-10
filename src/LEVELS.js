@@ -5,7 +5,7 @@ var LEVELS = {
 
 		initialize: function(c) {
 			c.x = 50;
-			c.y = 150 - CIRCLE_RAD[current_difficulty];
+			c.y = 150 - CIRCLE_RAD[moosetrack.current_difficulty];
 		},
 
 		terrain: [
@@ -29,7 +29,7 @@ var LEVELS = {
 
 		initialize: function(c) {
 			c.x = 50;
-			c.y = 150 - CIRCLE_RAD[current_difficulty];
+			c.y = 150 - CIRCLE_RAD[moosetrack.current_difficulty];
 		},
 
 		terrain: [
@@ -47,7 +47,7 @@ var LEVELS = {
 		},
 
 		done: function(c) {
-			return c.y >= (500 - CIRCLE_RAD[current_difficulty]);
+			return c.y >= (500 - CIRCLE_RAD[moosetrack.current_difficulty]);
 		},
 
 	},
@@ -78,7 +78,7 @@ var LEVELS = {
 
 		initialize: function(c) {
 			c.x = 50;
-			c.y = 150 - CIRCLE_RAD[current_difficulty];
+			c.y = 150 - CIRCLE_RAD[moosetrack.current_difficulty];
 		},
 
 		terrain: [
@@ -102,7 +102,7 @@ var LEVELS = {
 
 		initialize: function(c) {
 			c.x = CANVAS_WIDTH / 2;
-			c.y = CIRCLE_RAD[current_difficulty];
+			c.y = CIRCLE_RAD[moosetrack.current_difficulty];
 		},
 
 		terrain: [

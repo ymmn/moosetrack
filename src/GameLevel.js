@@ -25,7 +25,6 @@ function GameLevel(lvl) {
     var _levelNameContainer;
     var _gameplayContainer;
     var _finalScoreContainer;
-    var _countdownContainer;
     var _bigContainer;
     var _state;
     var _levelDriver;
@@ -41,13 +40,16 @@ function GameLevel(lvl) {
     var _previewCircle;
     var _previewLevelLine;
 
+    /* countdown phase */
+    var _countdownContainer;
+
     var _terrainLine;
     var _scoreTxt;
     var _replayCircle;
     var _accScore = 0;
     var _timer = 0;
     var _countdown = 3;
-    var _circleRad = CIRCLE_RAD[current_difficulty];
+    var _circleRad = CIRCLE_RAD[moosetrack.current_difficulty];
 
 
     ///////////////  PRIVATE METHODS ////////////////
@@ -161,11 +163,35 @@ function GameLevel(lvl) {
     };
 
     var _displayCountDown = function (cnt) {
-        var content = "GO";
-        if (cnt !== 0) {
-            content = "" + cnt;
-        }
-        _countdownContainer = _makeCenteredTextContainer([content]).container;
+        var three = new createjs.Text("3", "200px menlo", "#000");
+        three.textAlign = "center";
+        three.x = CANVAS_WIDTH / 5;
+        three.y = CANVAS_HEIGHT / 2;
+        three.color = cnt == 3 ? "#a19b9b" : "#dddddd";
+
+        var two = new createjs.Text("2", "200px menlo", "#000");
+        two.textAlign = "center";
+        two.x = CANVAS_WIDTH / 2;
+        two.y = CANVAS_HEIGHT / 2;
+        two.color = cnt == 2 ? "#a19b9b" : "#dddddd";
+
+        var one = new createjs.Text("1", "200px menlo", "#000");
+        one.textAlign = "center";
+        one.x = 4 * CANVAS_WIDTH / 5;
+        one.y = CANVAS_HEIGHT / 2;
+        one.color = cnt == 1 ? "#a19b9b" : "#dddddd";
+
+        var go = new createjs.Text("G O", "200px menlo", "#000");
+        go.textAlign = "center";
+        go.x = CANVAS_WIDTH / 2;
+        go.y = CANVAS_HEIGHT / 2;
+        go.color = cnt == 0 ? "#45d436" : "#dddddd";
+        // var content = "GO";
+        // if (cnt !== 0) {
+        //     content = "" + cnt;
+        // }
+        _countdownContainer = new createjs.Container();
+        _countdownContainer.addChild(three, two, one, go);
         _bigContainer.addChild(_countdownContainer);
     };
 
@@ -217,20 +243,32 @@ function GameLevel(lvl) {
             var extra = "";
             if (percentage >= PASSING_SCORE) {
                 /* player passed, so unlock next level */
-                unlocked_levels[current_difficulty][_levelNumber + 1] = true;
-                extra = "You unlocked the next level!";
+                // unlocked_levels[moosetrack.current_difficulty][_levelNumber + 1] = true;
+                // extra = "You unlocked the next level!";
             } else {
-                extra = "You need a C or above to unlock the next level";
+                // extra = "You need a C or above to unlock the next level";
+            }
+
+            /* increment rounds played */
+            moosetrack.num_rounds++;
+
+            /* played 10 rounds achievement */
+            if(moosetrack.num_rounds === 10) {
+               var achievement = new Clay.Achievement( { id: 2865 } );
+                achievement.award( function( response ) {
+                    // Optional callback on completion
+                    // console.log( response );
+                } );
             }
 
             /* record top score */
-            var prevPercent = top_scores[current_difficulty][_levelNumber];
+            var prevPercent = moosetrack.top_scores[moosetrack.current_difficulty][_levelNumber];
             if( prevPercent === undefined || percentage > prevPercent ) {
-                top_scores[current_difficulty][_levelNumber] = percentage;
+                moosetrack.top_scores[moosetrack.current_difficulty][_levelNumber] = percentage;
                 /* save cookie */
                 $.cookie('state', JSON.stringify({
-                    top_scores: top_scores,
-                    unlocked_levels: unlocked_levels
+                    top_scores: moosetrack.top_scores,
+                    num_rounds: moosetrack.num_rounds
                 }));
             }
 
@@ -252,7 +290,7 @@ function GameLevel(lvl) {
                 _bigContainer.removeChild(_levelNameContainer);
                 _state = PREVIEW;
                 /* init preview phase */
-                _instructionsLabel = new createjs.Text("Track the ball with the mouse cursor", "28px silom", "#000");
+                _instructionsLabel = new createjs.Text("Track the ball with the mouse cursor", "28px Letter Gothic Std", "#000");
                 _instructionsLabel.x = CANVAS_WIDTH / 2;
                 _instructionsLabel.y = 150;
                 _instructionsLabel.textAlign = "center";
@@ -294,7 +332,7 @@ function GameLevel(lvl) {
                 _levelDriver.setCircle(_playCircle);
                 _bigContainer.addChild(_playCircle);
                 _state = COUNTING_DOWN;
-                _timer = 0;
+                _timer = -1;
             }
         } /* Counting down for the game to start*/
         else if (_state == COUNTING_DOWN) {

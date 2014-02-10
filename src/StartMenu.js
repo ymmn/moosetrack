@@ -75,17 +75,18 @@ function StartMenu() {
         alert("sup!");
     };
 
-    var _lvlBtnOnclick = function() {
-        _selectedLevel = this.lvl;
-        _selectedLevelCircle.x = this.x;
-        _selectedLevelCircle.y = this.y;
-        _levelLabel.text = LEVELS[_selectedLevel].name;
+    var _lvlBtnOnclick = function(lvl, coords) {
+        if( coords !== undefined ) {
+            _selectedLevelCircle.x = coords.x;
+            _selectedLevelCircle.y = coords.y;
+        }
+        _levelLabel.text = LEVELS[lvl].name;
 
         /* Display the top score for this level */
-        var ts_percent = top_scores[current_difficulty][this.lvl];
+        var ts_percent = moosetrack.top_scores[moosetrack.current_difficulty][lvl];
         if(ts_percent === undefined) return;
         var grade = moosetrack.getGradeFromPercentage(ts_percent);
-        _levelLabel.text = LEVELS[_selectedLevel].name + ": " + grade + "  " + ts_percent;
+        _levelLabel.text = LEVELS[lvl].name + ": " + grade + "  " + ts_percent;
     };
 
     var _goBtnOnclick = function () {
@@ -94,8 +95,8 @@ function StartMenu() {
     };
 
     var _difficultyBtnOnclick = function() {
-        current_difficulty = this.diffInd;
-        _difficultyLabel.text = DIFFICULTIES[current_difficulty];
+        moosetrack.current_difficulty = this.diffInd;
+        _difficultyLabel.text = DIFFICULTIES[moosetrack.current_difficulty];
         _difficultySelectedGlow.x = this.loc.x;
         _difficultySelectedGlow.y = this.loc.y;
         _difficultySelectedGlow.scaleX = this.loc.rad / 36;
@@ -204,17 +205,27 @@ function StartMenu() {
             var btn = new CenteredButton(x, y, 9,
                 {
                     fillColor: color,
-                    hoverColor: "#AAA"
+                    hoverColor: "#AAA",
+                    onhover: function(btn){
+                        _lvlBtnOnclick(btn.lvl);
+                    },
+                    onLoseHover: function(){
+                        _lvlBtnOnclick(_selectedLevel);
+                    }
                 });
             btn.lvl = lvl;
             btn.x = x;
             btn.y = y;
-            btn.onclick = _lvlBtnOnclick;
+            btn.onclick = function(){
+                _selectedLevel = this.lvl;
+                console.log(this.lvl);
+                _lvlBtnOnclick(this.lvl, this);
+            };
             _levelBtns.push(btn);
             _levelBtnsContainer.addChild(btn.shape);
 
         //     /* Display the top score for this level */
-        //     var ts_percent = top_scores[current_difficulty][lvl];
+        //     var ts_percent = moosetrack.top_scores[moosetrack.current_difficulty][lvl];
         //     if( ts_percent !== undefined ) {
         //         var topscore = new createjs.Text(
         //             ts_percent + "% " + moosetrack.getGradeFromPercentage(ts_percent),
@@ -274,14 +285,14 @@ function StartMenu() {
 
 
         /* selected difficulty label */
-        _difficultyLabel = new createjs.Text(DIFFICULTIES[current_difficulty], "28px silom", "#333");
+        _difficultyLabel = new createjs.Text(DIFFICULTIES[moosetrack.current_difficulty], "28px silom", "#333");
         _difficultyLabel.x = 195;
         _difficultyLabel.y = 570;
         _levelSelectMenu.addChild(_difficultyLabel);
 
 
         /* now place glow on selected difficulty */
-        _difficultyBtns[current_difficulty].onclick();
+        _difficultyBtns[moosetrack.current_difficulty].onclick();
         /* and auto select first level */
         _levelBtns[0].onclick();
 
@@ -302,6 +313,7 @@ function StartMenu() {
 
 
         var state = OUT;
+        var wasHovered = false;
 
 
         var button = new createjs.Container();
@@ -416,16 +428,21 @@ function StartMenu() {
                 if(options.hoverTextColor !== undefined) {
                     title.color = options.hoverTextColor;
                 }
+                wasHovered = true;
                 // highlightCircle.graphics.setStrokeStyle(2)
                 //     .beginStroke(highlightColor)
                 //     // .beginRadialGradientStroke(["#F00","#00F"], [0, 1], x, y, radius-2, x, y, radius)
                 //     .drawCircle(x, y, radius);
             } else {
+                if(wasHovered && options.onLoseHover !== undefined) {
+                    options.onLoseHover();
+                }
                 if(options.hoverColor !== undefined) {
                     fillCircle.graphics.clear().beginFill(options.fillColor).drawCircle(x, y, radius);
                 }
                 if(title !== undefined) title.color = textColor;
                 highlightCircle.graphics.clear();
+                wasHovered = false;
             }
             if (this.isClicked()) {
                 this.onclick();
