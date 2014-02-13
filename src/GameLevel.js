@@ -36,23 +36,43 @@ function GameLevel(lvl) {
     var _ballRecording = Array(1000);
     var _playerRecordingLine;
     var _playCircle;
+    var _flashingText;
     /* preview phase */
     var _previewCircle;
     var _previewLevelLine;
+    var _previewMouseCursor;
+    var _instructionsLabel;
 
     /* countdown phase */
-    var _countdownContainer;
+    var _startPlayLabel;
 
-    var _terrainLine;
     var _scoreTxt;
     var _replayCircle;
     var _accScore = 0;
     var _timer = 0;
-    var _countdown = 3;
     var _circleRad = CIRCLE_RAD[moosetrack.current_difficulty];
 
 
     ///////////////  PRIVATE METHODS ////////////////
+    function RoundedButton(x, y, color, text, onclick) {
+
+        var w = 100;
+        var h = 40;
+
+        this.container = new createjs.Container();
+        var rect = new createjs.Shape();
+        rect.graphics.beginFill(color).drawRoundRect(x, y, w, h, 5);
+        var cjText = new createjs.Text(text, "16px Letter Gothic Std bold", "black");
+        cjText.textAlign = "center";
+        cjText.x = x + (w/2);
+        cjText.y = y + (h/2);
+        this.container.addChild(rect);
+        this.container.addChild(cjText);
+
+        this.container.addEventListener("click", onclick);
+
+    }
+
     var _init = function () {
         _state = LEVEL_NAME;
         _levelDriver = new LevelDriver(_levelNumber);
@@ -70,6 +90,8 @@ function GameLevel(lvl) {
         _replayCircle.graphics.beginStroke("black").drawCircle(0, 0, _circleRad);
         _replayCircle.alpha = 0.25;
         _previewCircle = new createjs.Shape();
+        _previewCircle.graphics.beginFill("black").drawCircle(0, 0, _circleRad);
+        _previewCircle.alpha = 0.25;
 
         /* make player recording line */
         _playerRecordingLine = new createjs.Shape();
@@ -83,11 +105,35 @@ function GameLevel(lvl) {
         graphics.setStrokeStyle(3);
         graphics.beginStroke("green");
 
-        /* make terrain shape */
-        _terrainLine = new createjs.Shape();
-        var graphics = _terrainLine.graphics;
-        graphics.setStrokeStyle(1);
-        graphics.beginStroke("black");
+        /* retry button */
+        _retryBtn = new RoundedButton(330, 530, "yellow", "Retry", function(){
+            /* reset ball position */
+            _levelDriver.setCircle(_playCircle);
+
+            /* remove replay components */
+            _bigContainer.removeChild(_playerRecordingLine);
+            _bigContainer.removeChild(_replayCircle);
+
+            /* remove final score components */
+            _bigContainer.removeChild(_finalScoreContainer);
+            _bigContainer.removeChild(_retryBtn.container);
+            _bigContainer.removeChild(_backToLvlsBtn.container);
+
+            /* add instructions again */
+            _bigContainer.addChild(_instructionsLabel);
+
+            /* reset game state to ready */
+            _state = COUNTING_DOWN;
+        });
+
+        /* back to menu button */
+        _backToLvlsBtn = new RoundedButton(500, 530, "yellow", "Back To Menu", function(){
+            console.log("BACK");
+        });
+
+        /* preview mouse cursor */
+        _previewMouseCursor = new createjs.Bitmap("assets/mouse.png");
+
 
         _levelNameContainer = _makeCenteredTextContainer(["Level " + _levelNumber]).container;
         _bigContainer.addChild(_levelNameContainer);
@@ -101,6 +147,22 @@ function GameLevel(lvl) {
         var dx = Math.abs(mousex - _playCircle.x);
         var dy = Math.abs(mousey - _playCircle.y);
         return dx <= _circleRad && dy <= _circleRad;
+    };
+
+    var _flashText = function (txt) {
+        if(_flashingText === undefined){
+            _flashingText = new createjs.Text(txt, "28px Letter Gothic Std bold", "black");
+            _flashingText.textAlign = "center";
+            _flashingText.x = CANVAS_WIDTH / 2;
+            _flashingText.y = 20;
+            _bigContainer.addChild(_flashingText);
+        }
+        _flashingText.text = txt;
+        if(_timer % 30 > 20) {
+            _flashingText.alpha = 0;
+        } else {
+            _flashingText.alpha = 1;
+        }
     };
 
     /**
@@ -138,63 +200,21 @@ function GameLevel(lvl) {
      */
     var _makeScoreDisplay = function (finalScore, possScore, percentage, extra) {
         var content = ["Final Score: " + finalScore + " / " + possScore];
-        _bigContainer.addChild(_makeCenteredTextContainer(content).container);
+        _finalScoreContainer = new createjs.Container();
+        _finalScoreContainer.addChild(_makeCenteredTextContainer(content).container);
 
         content = [percentage + "%"];
         var grade = moosetrack.getGradeFromPercentage(percentage);
         content.push(grade);
         content.push(extra);
-        _finalScoreContainer = _makeCenteredTextContainer(content, moosetrack.getScoreColor(percentage)).container;
-        _finalScoreContainer.y += 50;
+        var ctc = _makeCenteredTextContainer(content, moosetrack.getScoreColor(percentage)).container;
+        ctc.y += 50;
+        _finalScoreContainer.addChild(ctc);
         _bigContainer.addChild(_finalScoreContainer);
+
+        _bigContainer.addChild(_retryBtn.container);
+        _bigContainer.addChild(_backToLvlsBtn.container);
     };
-
-    var _createTerrain = function () {
-        var terrain = LEVELS[_levelNumber].terrain;
-        if (terrain !== undefined) {
-            _terrainLine.graphics.moveTo(terrain[0].x(), terrain[0].y());
-            for (var i = 1; i < terrain.length; i++) {
-                _terrainLine.graphics.lineTo(terrain[i].x(), terrain[i].y());
-                console.log(terrain[i].elements);
-                console.log(terrain[0].elements);
-            }
-            // _bigContainer.addChild(_terrainLine);
-        }
-    };
-
-    var _displayCountDown = function (cnt) {
-        var three = new createjs.Text("3", "200px menlo", "#000");
-        three.textAlign = "center";
-        three.x = CANVAS_WIDTH / 5;
-        three.y = CANVAS_HEIGHT / 2;
-        three.color = cnt == 3 ? "#a19b9b" : "#dddddd";
-
-        var two = new createjs.Text("2", "200px menlo", "#000");
-        two.textAlign = "center";
-        two.x = CANVAS_WIDTH / 2;
-        two.y = CANVAS_HEIGHT / 2;
-        two.color = cnt == 2 ? "#a19b9b" : "#dddddd";
-
-        var one = new createjs.Text("1", "200px menlo", "#000");
-        one.textAlign = "center";
-        one.x = 4 * CANVAS_WIDTH / 5;
-        one.y = CANVAS_HEIGHT / 2;
-        one.color = cnt == 1 ? "#a19b9b" : "#dddddd";
-
-        var go = new createjs.Text("G O", "200px menlo", "#000");
-        go.textAlign = "center";
-        go.x = CANVAS_WIDTH / 2;
-        go.y = CANVAS_HEIGHT / 2;
-        go.color = cnt == 0 ? "#45d436" : "#dddddd";
-        // var content = "GO";
-        // if (cnt !== 0) {
-        //     content = "" + cnt;
-        // }
-        _countdownContainer = new createjs.Container();
-        _countdownContainer.addChild(three, two, one, go);
-        _bigContainer.addChild(_countdownContainer);
-    };
-
 
 
     var _scorePhase = function () {
@@ -229,6 +249,8 @@ function GameLevel(lvl) {
             createjs.Sound.play("count");
         }
 
+        _flashText("INSTANT REPLAY");
+
         /* color ball based on hit or miss */
         _replayCircle.graphics.clear().beginFill(ballColor).drawCircle(0, 0, _circleRad);
 
@@ -238,6 +260,8 @@ function GameLevel(lvl) {
             /* yup! time to display total and stuff */
             _timer = 0;
             _state = DISPLAY_SCORE;
+
+            _bigContainer.removeChild(_flashingText);
 
             /* prepare the message telling the user whether or not he passed */
             var extra = "";
@@ -300,9 +324,10 @@ function GameLevel(lvl) {
                 /* initialize line */
                 _previewLevelLine.graphics.moveTo(_previewCircle.x, _previewCircle.y);
                 _bigContainer.addChild(_previewLevelLine);
+                _bigContainer.addChild(_previewMouseCursor);
+                _bigContainer.addChild(_previewCircle);
 
 
-                _createTerrain();
                 _timer = 0;
             }
         } /* showing the player how this level goes as well as instructions */
@@ -315,7 +340,14 @@ function GameLevel(lvl) {
                 }
             } else{
                 if( !_levelDriver.done() ) {
+                    /* move the circle */
                     _levelDriver.play();
+
+                    /* move mouse cursor */
+                    _previewMouseCursor.x = _previewCircle.x - (_previewMouseCursor.image.width / 2);
+                    _previewMouseCursor.y = _previewCircle.y;
+
+                    /* draw dashed line */
                     if( _timer % 3 === 0 ) {
                         _previewLevelLine.graphics.moveTo(_previewCircle.x, _previewCircle.y);
                     } else {
@@ -323,40 +355,40 @@ function GameLevel(lvl) {
                     }
                 } else {
                     doneWithPreview = true;
-
                 }
             }
+            _flashText("PREVIEW");
 
             if(doneWithPreview) {
-                _bigContainer.removeChild(_instructionsLabel);
                 _levelDriver.setCircle(_playCircle);
                 _bigContainer.addChild(_playCircle);
+
+                /* add ball click listener */
+                _playCircle.addEventListener("click", function(){
+                    if( _state == COUNTING_DOWN ) {
+                        _state = PLAYING;
+                        _bigContainer.removeChild(_instructionsLabel);
+                        _bigContainer.removeChild(_startPlayLabel);
+                    }
+                });
+
+                /* label to tell player to click ball */
+                _startPlayLabel = new createjs.Text("Now it's your turn!\n\nClick the ball to start", "28px Letter Gothic Std", "#000");
+                _startPlayLabel.x = CANVAS_WIDTH / 2;
+                _startPlayLabel.y = 250;
+                _startPlayLabel.textAlign = "center";
+                _bigContainer.addChild(_startPlayLabel);
+                /* remove cursor and preview circle */
+                _bigContainer.removeChild(_previewMouseCursor);
+                _bigContainer.removeChild(_previewCircle);
+                _bigContainer.removeChild(_flashingText);
+
+
                 _state = COUNTING_DOWN;
-                _timer = -1;
             }
         } /* Counting down for the game to start*/
         else if (_state == COUNTING_DOWN) {
-            /* Once timer is reached, Count down one more time */
-            if (_timer === 0 || _timer === COUNT_DOWN_TIMER) {
-                _bigContainer.removeChild(_countdownContainer);
-                /* already counted to 0. Start the game! */
-                if (_countdown < 0) {
-                    _state = PLAYING;
-                } else {
-                    /* still more numbers left to count */
-                    if(_countdown === 0) {
-                        /* GO! */
-                        createjs.Sound.play("start-playing");
-                    } else {
-                        /* just a number */
-                        createjs.Sound.play("countdown");
-                    }
-
-                    _displayCountDown(_countdown);
-                    _countdown--;
-                }
-                _timer = 0;
-            }
+            /* just wait for player to click circle */
         } /* Player is playing the game */
         else if (_state == PLAYING) {
             /* if the level is still going, record user input, and move ball */
@@ -369,6 +401,7 @@ function GameLevel(lvl) {
             } else {
                 /* we're done! now setup to start the replay phase */
                 _state = REPLAY_AND_COUNT;
+                _bigContainer.addChild(_flashingText);
                 _possScore--;
                 _timer = 0;
                 _previewLevelLine.alpha = 0.2;
@@ -378,7 +411,7 @@ function GameLevel(lvl) {
                 _levelDriver.setCircle(_replayCircle);
                 var tc = _makeCenteredTextContainer(["" + 0]);
                 _scoreTxt = tc.text;
-                _finalScoreContainer = tc.container
+                _finalScoreContainer = tc.container;
                 _bigContainer.addChild(_finalScoreContainer);
             }
         } /* replaying user input and counting score */
@@ -386,9 +419,9 @@ function GameLevel(lvl) {
             _scorePhase();
         } /* showing user the final score and grade */
         else if (_state == DISPLAY_SCORE) {
-            if (_timer == DISPLAY_SCORE_TIMER) {
-                moosetrack.gotoStartMenu();
-            }
+            // if (_timer == DISPLAY_SCORE_TIMER) {
+                // moosetrack.gotoStartMenu();
+            // }
         }
         _timer++;
     };

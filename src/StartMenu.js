@@ -36,6 +36,9 @@ function StartMenu() {
     ];
 
     ////////////////  PRIVATE VARIABLES ///////////////
+    /* icons */
+    var _soundOnImg;
+    var _soundOffImg;
     /* start menu */
     var _startButton;
     var _achievementButton;
@@ -64,7 +67,7 @@ function StartMenu() {
     var _startBtnOnclick = function(){
         _state = SELECT_LEVEL;
         _bigContainer.removeChild(_initialMenu);
-        _createLevelSelectMenu();
+        _bigContainer.addChildAt(_createLevelSelectMenu(), 0);
     };
 
     var _achievementBtnOnclick = function() {
@@ -90,7 +93,7 @@ function StartMenu() {
     };
 
     var _goBtnOnclick = function () {
-        _bigContainer.removeAllChildren();
+        _bigContainer.removeChild(_levelSelectMenu);
         moosetrack.startLevel(_selectedLevel);
     };
 
@@ -108,11 +111,31 @@ function StartMenu() {
     var _init = function() {
         _bigContainer = new createjs.Container();
 
-        _createInitialMenu();
+        /* sound on off */
+        _soundOnImg = new createjs.Bitmap("assets/sound_on.png");
+        _soundOnImg.x = CANVAS_WIDTH - 70;
+        _soundOnImg.y = CANVAS_HEIGHT - 70;
+        _soundOnImg.addEventListener("click", function(){
+            _bigContainer.removeChild(_soundOnImg);
+            _bigContainer.addChildAt(_soundOffImg, 1);
+            moosetrack.toggleSound();
+        });
+        _soundOffImg = new createjs.Bitmap("assets/sound_off.png");
+        _soundOffImg.x = CANVAS_WIDTH - 70;
+        _soundOffImg.y = CANVAS_HEIGHT - 70;
+        _soundOffImg.addEventListener("click", function(){
+            _bigContainer.removeChild(_soundOffImg);
+            _bigContainer.addChildAt(_soundOnImg, 1);
+            moosetrack.toggleSound();
+        });
+
+
+        _bigContainer.addChildAt(_createInitialMenu(), 0);
+
+        _bigContainer.addChildAt(_soundOnImg, 1);
     };
 
     var _createInitialMenu = function() {
-        _bigContainer.removeAllChildren();
         _initialMenu = new createjs.Container();
 
 
@@ -137,7 +160,6 @@ function StartMenu() {
             });
         _startButton.onclick = _startBtnOnclick;
         _initialMenu.addChild(_startButton.shape);
-        _bigContainer.addChild(_initialMenu);
 
         /* Achievements button and its listeners */
         _achievementButton = new CenteredButton(208, 450, 85, {
@@ -165,12 +187,10 @@ function StartMenu() {
         _creditsButton.onclick = _creditsBtnOnclick;
         _initialMenu.addChild(_creditsButton.shape);
 
-
-        _bigContainer.addChild(_initialMenu);
+        return _initialMenu;
     };
 
     var _createLevelSelectMenu = function() {
-        _bigContainer.removeAllChildren();
 
         _levelSelectMenu = new createjs.Container();
 
@@ -276,6 +296,12 @@ function StartMenu() {
         _goBtn.onclick = _goBtnOnclick;
         _levelSelectMenu.addChild(_goBtn.shape);
 
+        /* back button */
+        _backBtnImg = new createjs.Bitmap("assets/back.png");
+        _backBtnImg.x = 10;
+        _backBtnImg.y = 40;
+        _backBtnImg.addEventListener("click", that.switchToMainMenu);
+        _levelSelectMenu.addChild(_backBtnImg);
 
         /* selected level label */
         _levelLabel = new createjs.Text(LEVELS[_selectedLevel].name, "28px silom", "#333");
@@ -296,7 +322,7 @@ function StartMenu() {
         /* and auto select first level */
         _levelBtns[0].onclick();
 
-        _bigContainer.addChild(_levelSelectMenu);
+        return _levelSelectMenu;
     };
 
     var CenteredButton = function(x, y, radius, options) {
@@ -445,6 +471,7 @@ function StartMenu() {
                 wasHovered = false;
             }
             if (this.isClicked()) {
+                createjs.Sound.play("btn-click", createjs.Sound.INTERRUPT_NONE, 0, 0, 0, 0.4);
                 this.onclick();
             }
         };
@@ -470,6 +497,18 @@ function StartMenu() {
             }
             _goBtn.tick();
         }
+    };
+
+    this.switchToLevelSelect = function(){
+        _state = SELECT_LEVEL;
+        _bigContainer.removeChild(_initialMenu);
+        _bigContainer.addChildAt(_createLevelSelectMenu(), 0);
+    };
+
+    this.switchToMainMenu = function() {
+        _state = INITIAL;
+        _bigContainer.removeChild(_levelSelectMenu);
+        _bigContainer.addChildAt(_createInitialMenu(), 0);
     };
 
     this.refresh = function() {
