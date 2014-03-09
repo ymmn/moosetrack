@@ -67,6 +67,7 @@ var moosetrack = function() {
         if(_curLevel !== undefined) {
             _stage.removeChild(_curLevel.getContainer());
         }
+        _stage.removeChild(_startMenu.getContainer());
         _stage.addChild(_startMenu.getContainer());
     };
 
@@ -108,6 +109,7 @@ var moosetrack = function() {
 
     var _doneLoading = function () {
 
+        _stage.removeChild(_messageField);
         _messageField.text = "";
 
         /* play music */
@@ -131,7 +133,7 @@ var moosetrack = function() {
         document.body.onmousemove = function (e) {
             mousex = e.x - OFFSET_X + window.scrollX;
             mousey = e.y - OFFSET_Y + window.scrollY;
-            console.log(mousex + ", " + mousey);
+            // console.log(mousex + ", " + mousey);
         };
         document.body.onmousedown = function () {
             mouseDown = true;

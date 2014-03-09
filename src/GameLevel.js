@@ -2,7 +2,6 @@ function GameLevel(lvl) {
 
     ///////////////// CONSTANTS ////////////////
     /* states */
-    var LEVEL_NAME = -1;
     var COUNTING_DOWN = -2;
     var PLAYING = -3;
     var DISPLAY_SCORE = -4;
@@ -54,7 +53,7 @@ function GameLevel(lvl) {
 
 
     ///////////////  PRIVATE METHODS ////////////////
-    function RoundedButton(x, y, color, text, onclick) {
+    function RoundedButton(x, y, color, text, textColor, onclick) {
 
         var w = 100;
         var h = 40;
@@ -62,10 +61,10 @@ function GameLevel(lvl) {
         this.container = new createjs.Container();
         var rect = new createjs.Shape();
         rect.graphics.beginFill(color).drawRoundRect(x, y, w, h, 5);
-        var cjText = new createjs.Text(text, "16px Letter Gothic Std bold", "black");
+        var cjText = new createjs.Text(text, "16px Letter Gothic Std bold", textColor);
         cjText.textAlign = "center";
         cjText.x = x + (w/2);
-        cjText.y = y + (h/2);
+        cjText.y = y + (h/2) - 10;
         this.container.addChild(rect);
         this.container.addChild(cjText);
 
@@ -74,7 +73,7 @@ function GameLevel(lvl) {
     }
 
     var _init = function () {
-        _state = LEVEL_NAME;
+        _state = PREVIEW;
         _levelDriver = new LevelDriver(_levelNumber);
         _bigContainer = new createjs.Container();
 
@@ -106,37 +105,54 @@ function GameLevel(lvl) {
         graphics.beginStroke("green");
 
         /* retry button */
-        _retryBtn = new RoundedButton(330, 530, "yellow", "Retry", function(){
-            /* reset ball position */
-            _levelDriver.setCircle(_playCircle);
+        _retryBtn = new RoundedButton(330, 530, "#333", "Retry", "white", function(){
+            moosetrack.startLevel(_levelNumber);
+            // /* reset ball position */
+            // _levelDriver.setCircle(_playCircle);
 
-            /* remove replay components */
-            _bigContainer.removeChild(_playerRecordingLine);
-            _bigContainer.removeChild(_replayCircle);
+            // /* remove replay components */
+            // _bigContainer.removeChild(_playerRecordingLine);
+            // _bigContainer.removeChild(_replayCircle);
 
-            /* remove final score components */
-            _bigContainer.removeChild(_finalScoreContainer);
-            _bigContainer.removeChild(_retryBtn.container);
-            _bigContainer.removeChild(_backToLvlsBtn.container);
+            // /* remove final score components */
+            // _bigContainer.removeChild(_finalScoreContainer);
+            // _bigContainer.removeChild(_retryBtn.container);
+            // _bigContainer.removeChild(_backToLvlsBtn.container);
 
-            /* add instructions again */
-            _bigContainer.addChild(_instructionsLabel);
+            // /* add instructions again */
+            // _bigContainer.addChild(_instructionsLabel);
 
-            /* reset game state to ready */
-            _state = COUNTING_DOWN;
+            // /* reset game state to ready */
+            // _state = COUNTING_DOWN;
+
+            /* reset score */
+            // _possScore = 0;
+            // _accScore = 0;
+
         });
 
         /* back to menu button */
-        _backToLvlsBtn = new RoundedButton(500, 530, "yellow", "Back To Menu", function(){
-            console.log("BACK");
+        _backToLvlsBtn = new RoundedButton(550, 530, "#333", "Menu", "white", function(){
+            moosetrack.gotoStartMenu();
         });
 
         /* preview mouse cursor */
         _previewMouseCursor = new createjs.Bitmap("assets/mouse.png");
 
 
-        _levelNameContainer = _makeCenteredTextContainer(["Level " + _levelNumber]).container;
-        _bigContainer.addChild(_levelNameContainer);
+        /* init preview phase */
+        _instructionsLabel = new createjs.Text("Track the ball with the mouse cursor", "28px Letter Gothic Std", "#000");
+        _instructionsLabel.x = CANVAS_WIDTH / 2;
+        _instructionsLabel.y = 150;
+        _instructionsLabel.textAlign = "center";
+        _bigContainer.addChild(_instructionsLabel);
+        /* set dummy circle */
+        _levelDriver.setCircle(_previewCircle);
+        /* initialize line */
+        _previewLevelLine.graphics.moveTo(_previewCircle.x, _previewCircle.y);
+        _bigContainer.addChild(_previewLevelLine);
+        _bigContainer.addChild(_previewMouseCursor);
+        _bigContainer.addChild(_previewCircle);
     };
 
     /**
@@ -201,11 +217,11 @@ function GameLevel(lvl) {
     var _makeScoreDisplay = function (finalScore, possScore, percentage, extra) {
         var content = ["Final Score: " + finalScore + " / " + possScore];
         _finalScoreContainer = new createjs.Container();
-        _finalScoreContainer.addChild(_makeCenteredTextContainer(content).container);
+        // _finalScoreContainer.addChild(_makeCenteredTextContainer(content).container);
 
-        content = [percentage + "%"];
+        content = ["Score: " + percentage + "%"];
         var grade = moosetrack.getGradeFromPercentage(percentage);
-        content.push(grade);
+        content.push("Grade: " + grade);
         content.push(extra);
         var ctc = _makeCenteredTextContainer(content, moosetrack.getScoreColor(percentage)).container;
         ctc.y += 50;
@@ -307,31 +323,8 @@ function GameLevel(lvl) {
 
     //////////////// PUBLIC METHODS //////////////
     this.tick = function () {
-        /* displaying the name of the level */
-        if (_state == LEVEL_NAME) {
-            /* move on to next state once timer is reached */
-            if (_timer === LEVEL_NAME_TIMER) {
-                _bigContainer.removeChild(_levelNameContainer);
-                _state = PREVIEW;
-                /* init preview phase */
-                _instructionsLabel = new createjs.Text("Track the ball with the mouse cursor", "28px Letter Gothic Std", "#000");
-                _instructionsLabel.x = CANVAS_WIDTH / 2;
-                _instructionsLabel.y = 150;
-                _instructionsLabel.textAlign = "center";
-                _bigContainer.addChild(_instructionsLabel);
-                /* set dummy circle */
-                _levelDriver.setCircle(_previewCircle);
-                /* initialize line */
-                _previewLevelLine.graphics.moveTo(_previewCircle.x, _previewCircle.y);
-                _bigContainer.addChild(_previewLevelLine);
-                _bigContainer.addChild(_previewMouseCursor);
-                _bigContainer.addChild(_previewCircle);
-
-
-                _timer = 0;
-            }
-        } /* showing the player how this level goes as well as instructions */
-        else if (_state == PREVIEW) {
+         /* showing the player how this level goes as well as instructions */
+        if (_state == PREVIEW) {
             /* draw a line previewing the level's path */
             var doneWithPreview = false;
             if( _levelDriver.noPreview() ){

@@ -1,0 +1,17 @@
+{
+	"name": "Trace",
+	"version": "0.9",
+	"description": "Hone your mouse skills",
+	"version": "1.0",
+	"app": {
+		"launch": {
+			"local_path": "index.html"
+		}
+	},
+	"icons": {
+		"128": "assets/logo.jpg"
+	},
+	"promo_images": {
+		"440": "assets/440.jpg"
+	}
+}

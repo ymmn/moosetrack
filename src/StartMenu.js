@@ -66,8 +66,7 @@ function StartMenu() {
     ///////////////  BTN CLICK HANDLERS ////////////////
     var _startBtnOnclick = function(){
         _state = SELECT_LEVEL;
-        _bigContainer.removeChild(_initialMenu);
-        _bigContainer.addChildAt(_createLevelSelectMenu(), 0);
+        that.refresh();
     };
 
     var _achievementBtnOnclick = function() {
@@ -75,14 +74,10 @@ function StartMenu() {
     };
 
     var _creditsBtnOnclick = function() {
-        alert("sup!");
+        alert("By Abdelrahman Nimeri and Lisa Huang.");
     };
 
-    var _lvlBtnOnclick = function(lvl, coords) {
-        if( coords !== undefined ) {
-            _selectedLevelCircle.x = coords.x;
-            _selectedLevelCircle.y = coords.y;
-        }
+    var _refreshSelectedLevelText = function(lvl) {
         _levelLabel.text = LEVELS[lvl].name;
 
         /* Display the top score for this level */
@@ -92,8 +87,15 @@ function StartMenu() {
         _levelLabel.text = LEVELS[lvl].name + ": " + grade + "  " + ts_percent;
     };
 
+    var _lvlBtnOnclick = function(lvl, coords) {
+        if( coords !== undefined ) {
+            _selectedLevelCircle.x = coords.x;
+            _selectedLevelCircle.y = coords.y;
+        }
+        _refreshSelectedLevelText(lvl);
+    };
+
     var _goBtnOnclick = function () {
-        _bigContainer.removeChild(_levelSelectMenu);
         moosetrack.startLevel(_selectedLevel);
     };
 
@@ -104,6 +106,7 @@ function StartMenu() {
         _difficultySelectedGlow.y = this.loc.y;
         _difficultySelectedGlow.scaleX = this.loc.rad / 36;
         _difficultySelectedGlow.scaleY = this.loc.rad / 36;
+        _refreshSelectedLevelText(_selectedLevel);
     };
 
 
@@ -128,9 +131,6 @@ function StartMenu() {
             _bigContainer.addChildAt(_soundOnImg, 1);
             moosetrack.toggleSound();
         });
-
-
-        _bigContainer.addChildAt(_createInitialMenu(), 0);
 
         _bigContainer.addChildAt(_soundOnImg, 1);
     };
@@ -502,18 +502,23 @@ function StartMenu() {
     this.switchToLevelSelect = function(){
         _state = SELECT_LEVEL;
         _bigContainer.removeChild(_initialMenu);
+        _bigContainer.removeChild(_levelSelectMenu);
         _bigContainer.addChildAt(_createLevelSelectMenu(), 0);
     };
 
     this.switchToMainMenu = function() {
         _state = INITIAL;
+        _bigContainer.removeChild(_initialMenu);
         _bigContainer.removeChild(_levelSelectMenu);
         _bigContainer.addChildAt(_createInitialMenu(), 0);
     };
 
     this.refresh = function() {
+        console.log("called");
         if( _state === SELECT_LEVEL ) {
-            _createLevelSelectMenu();
+            that.switchToLevelSelect();
+        } else {
+            that.switchToMainMenu();
         }
     };
 
