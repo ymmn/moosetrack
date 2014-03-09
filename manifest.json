@@ -9,9 +9,9 @@
 		}
 	},
 	"icons": {
-		"128": "assets/logo.jpg"
+		"128": "assets/logo.png"
 	},
 	"promo_images": {
-		"440": "assets/440.jpg"
+		"440": "assets/440.png"
 	}
 }

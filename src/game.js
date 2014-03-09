@@ -102,7 +102,6 @@ var moosetrack = function() {
     ///////////////// CORE ////////////////
     var _updateLoading = function () {
         _messageField.text = "Loading " + (preload.progress*100|0) + "%";
-        console.log("HI");
         _stage.update();
     };
 
