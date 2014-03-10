@@ -105,6 +105,12 @@ function GameLevel(lvl) {
         graphics.setStrokeStyle(3);
         graphics.beginStroke("green");
 
+        /* View Leaderboard button */
+        _viewLeaderboardBtn = new RoundedButton(800, 280, "#333", "Leaderboard", "white", function(){
+            var leaderboard = new Clay.Leaderboard( { id: 3330 + moosetrack.current_difficulty } );
+            leaderboard.show();
+        });
+
         /* retry button */
         _retryBtn = new RoundedButton(330, 540, "#333", "Retry", "white", function(){
             moosetrack.startLevel(_levelNumber);
@@ -236,6 +242,7 @@ function GameLevel(lvl) {
 
         _bigContainer.addChild(_retryBtn.container);
         _bigContainer.addChild(_backToLvlsBtn.container);
+        _bigContainer.addChild(_viewLeaderboardBtn.container);
     };
 
 
@@ -307,6 +314,16 @@ function GameLevel(lvl) {
                 } );
             }
 
+            /* played 25 rounds achievement */
+            if(moosetrack.num_rounds === 25) {
+               var achievement = new Clay.Achievement( { id: 3558 } );
+                achievement.award( function( response ) {
+                    // Optional callback on completion
+                    // console.log( response );
+                } );
+            }
+
+
             /* periodically ask players to invite on fb */
             if((moosetrack.num_rounds - 1) % 10 === 0) {
                 // Clay.Facebook.invite();
@@ -324,6 +341,33 @@ function GameLevel(lvl) {
             _totalScoreOnDifficulty = moosetrack.calculateAccScoreForDifficulty();
             // console.log('acc is ' + _totalScoreOnDifficulty);
 
+            /* rack up achievements */
+            var achievements = [];
+            if(moosetrack.current_difficulty === 0) {
+                /* 500 on easy */
+                if( _totalScoreOnDifficulty >= 500 ) achievements.push(3552);
+                /* 750 on easy */
+                if( _totalScoreOnDifficulty >= 750 ) achievements.push(3553);
+                /* 850 on easy */
+                if( _totalScoreOnDifficulty >= 850 ) achievements.push(3554);
+            }
+            if(moosetrack.current_difficulty === 1) {
+                /* 500 on medium */
+                if( _totalScoreOnDifficulty >= 500 ) achievements.push(3555);
+            }
+            if(moosetrack.current_difficulty === 2) {
+                /* 500 on hard */
+                if( _totalScoreOnDifficulty >= 500 ) achievements.push(3556);
+            }
+            if(moosetrack.current_difficulty === 3) {
+                /* 450 on ! */
+                if( _totalScoreOnDifficulty >= 450 ) achievements.push(3557);
+            }
+            for(var i = 0; i< achievements.length; i++) {
+               var achievement = new Clay.Achievement( { id: achievements[i] } );
+               achievement.award( function( response ) { } );
+            }
+
             /* update leaderboard */
             var cutoffs = moosetrack.leaderboardCutoff;
             var didSetHighScore = false;
@@ -339,11 +383,9 @@ function GameLevel(lvl) {
             }
 
             /* save cookie */
-            moosetrack.highestScores[moosetrack.current_difficulty] = Math.max(_totalScoreOnDifficulty, moosetrack.highestScores[moosetrack.current_difficulty]);
             $.cookie('state', JSON.stringify({
                 top_scores: moosetrack.top_scores,
                 num_rounds: moosetrack.num_rounds,
-                highestScores: moosetrack.highestScores
             }));
 
 

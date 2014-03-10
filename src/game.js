@@ -38,7 +38,6 @@ var moosetrack = function() {
 
     /* game state */
     p.current_difficulty = 0;
-    p.highestScores = [0, 0, 0, 0];
     p.top_scores = [{}, {}, {}, {}];
     p.num_rounds = 0;
     p.soundOn = true;
@@ -135,7 +134,6 @@ var moosetrack = function() {
            var state = JSON.parse(cookieVal);
            p.top_scores = state.top_scores;
            p.num_rounds = state.num_rounds;
-           p.highestScores = state.highestScores;
         }
 
 
