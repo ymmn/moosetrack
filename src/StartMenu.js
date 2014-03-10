@@ -243,6 +243,7 @@ function StartMenu() {
             };
             _levelBtns.push(btn);
             _levelBtnsContainer.addChild(btn.shape);
+        }
 
         //     /* Display the top score for this level */
         //     var ts_percent = moosetrack.top_scores[moosetrack.current_difficulty][lvl];
@@ -258,7 +259,7 @@ function StartMenu() {
         //         topscore.color = moosetrack.getScoreColor(ts_percent);
         //         _levelBtnsContainer.addChild(topscore);
         //     }
-        }
+        
         _levelSelectMenu.addChild(_levelBtnsContainer);
 
         /* selected level Circle */
@@ -287,6 +288,13 @@ function StartMenu() {
             btn.onclick = _difficultyBtnOnclick;
             _difficultyBtns.push(btn);
             _difficultyBtnsContainer.addChild(btn.shape);
+
+            /* add the accumulative score under the difficulty */
+            var scoreTxt = new createjs.Text("" + moosetrack.calculateAccScoreForDifficulty(i), "28px silom");
+            scoreTxt.x = btn.loc.x;
+            scoreTxt.y = btn.loc.y + btn.loc.rad + 5;
+            scoreTxt.textAlign = "center";
+            _levelSelectMenu.addChild(scoreTxt);
         }
         _levelSelectMenu.addChild(_difficultyBtnsContainer);
 
@@ -315,6 +323,7 @@ function StartMenu() {
         _difficultyLabel.x = 195;
         _difficultyLabel.y = 570;
         _levelSelectMenu.addChild(_difficultyLabel);
+
 
 
         /* now place glow on selected difficulty */
@@ -529,4 +538,4 @@ function StartMenu() {
 
     _init();
 
-}
+};

@@ -38,12 +38,26 @@ var moosetrack = function() {
 
     /* game state */
     p.current_difficulty = 0;
+    p.highestScores = [0, 0, 0, 0];
     p.top_scores = [{}, {}, {}, {}];
     p.num_rounds = 0;
     p.soundOn = true;
+    p.leaderboardCutoff = [0, 0, 0, 0];
 
 
     ///////////////// HELPERS ////////////////
+    p.calculateAccScoreForDifficulty = function(difficulty) {
+        if(difficulty === undefined) {
+            difficulty = p.current_difficulty;
+        }
+        var scores = moosetrack.top_scores[difficulty];
+        var accScore = 0;
+        for(var s = 0; s < Object.keys(scores).length; s++) {
+            accScore += Math.floor( scores[ Object.keys(scores)[s] ] );
+        }
+        return accScore;
+    };
+
     p.startLevel = function(lvl) {
         _stage.removeChild(_startMenu.getContainer());
         _game_state = PLAYING;
@@ -121,6 +135,7 @@ var moosetrack = function() {
            var state = JSON.parse(cookieVal);
            p.top_scores = state.top_scores;
            p.num_rounds = state.num_rounds;
+           p.highestScores = state.highestScores;
         }
 
 
@@ -130,8 +145,11 @@ var moosetrack = function() {
 
         /* register handlers */
         document.body.onmousemove = function (e) {
-            mousex = e.x - OFFSET_X + window.scrollX;
-            mousey = e.y - OFFSET_Y + window.scrollY;
+            // console.log(e);
+            var x = e.clientX || e.x;
+            var y = e.clientY || e.y;
+            mousex = x - OFFSET_X + window.scrollX;
+            mousey = y - OFFSET_Y + window.scrollY;
             // console.log(mousex + ", " + mousey);
         };
         document.body.onmousedown = function () {
@@ -159,6 +177,30 @@ var moosetrack = function() {
         p.gotoStartMenu();
     };
 
+    var _calculateLeaderboardCutoffs = function(diff) {
+        var leaderboard = new Clay.Leaderboard( { id: 3330 + diff } );
+
+        leaderboard.fetch({}, function(res) {
+            // console.log(diff);
+            /* set cutoff to the 10th highest score */ 
+            var l = Math.min(10, res.length);
+            // console.log("Of length " + l);
+            for(var i = 0; i < l; i++) {
+                // console.log((i+1) + "th score is " + res[i].score);
+                if( res[i].me ) {
+                    // console.log("MY SCORE");
+                    p.leaderboardCutoff[diff] = res[i].score;
+                    return;
+                }
+            }
+            if( l < 10 ) {
+                p.leaderboardCutoff[diff] = 0;
+            } else {
+                p.leaderboardCutoff[diff] = res[l-1].score;
+            }
+        });
+    };
+
     p.init = function() {
 
         /* define canvas dimension constants */
@@ -178,6 +220,10 @@ var moosetrack = function() {
         _messageField.y = canvas.height / 2;
         _stage.addChild(_messageField);
         _stage.update();
+
+        for(var i = 0; i < 4; i++) {
+            _calculateLeaderboardCutoffs(i);
+        }
 
         /* begin loading content (only sounds to load) */
         var manifest = [

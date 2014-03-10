@@ -17,7 +17,7 @@
 <script src="src/game.js"></script>
 <script src="src/LEVELS.js"></script>
 
-<body style="background-color: #FAFAFA" onload="moosetrack.init();">
+<body style="background-color: #FAFAFA">
 	<a href="https://github.com/ymmn/trace"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
 	<div style="margin: auto; width: 960px; background-color: #fff;" class="canvasContainer">
 		<!--<div id="credits">
@@ -29,8 +29,6 @@
 	<script type="text/javascript">
 	var Clay = Clay || {};
 	Clay.gameKey = "trace";
-	Clay.readyFunctions = [];
-	Clay.options = { debug: false };
 	var barOptions = {
 	    position: { // object containing position-related properties
 	        width: '120px', // specify a percentage or px width for the bar
@@ -38,17 +36,11 @@
 	        top: 10
 	    }
 	};
+	Clay.readyFunctions = [function(){ new Clay.Bar(barOptions); }, moosetrack.init];
+	Clay.options = { debug: false };
 	Clay.ready = function( fn ) {
 	    Clay.readyFunctions.push( fn );
 	};
-	function addBar(){
-		if(Clay.Bar) {
-			new Clay.Bar( barOptions );
-		} else {
-			window.setTimeout(addBar, 500);
-		}
-	}
-	addBar();
 	</script>
 	<script src="//clay.io/api/api.js"></script>
 </body>

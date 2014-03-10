@@ -48,6 +48,7 @@ function GameLevel(lvl) {
     var _scoreTxt;
     var _replayCircle;
     var _accScore = 0;
+    var _totalScoreOnDifficulty;
     var _timer = 0;
     var _circleRad = CIRCLE_RAD[moosetrack.current_difficulty];
 
@@ -105,7 +106,7 @@ function GameLevel(lvl) {
         graphics.beginStroke("green");
 
         /* retry button */
-        _retryBtn = new RoundedButton(330, 530, "#333", "Retry", "white", function(){
+        _retryBtn = new RoundedButton(330, 540, "#333", "Retry", "white", function(){
             moosetrack.startLevel(_levelNumber);
             // /* reset ball position */
             // _levelDriver.setCircle(_playCircle);
@@ -132,7 +133,7 @@ function GameLevel(lvl) {
         });
 
         /* back to menu button */
-        _backToLvlsBtn = new RoundedButton(550, 530, "#333", "Menu", "white", function(){
+        _backToLvlsBtn = new RoundedButton(550, 540, "#333", "Menu", "white", function(){
             moosetrack.gotoStartMenu();
         });
 
@@ -214,7 +215,7 @@ function GameLevel(lvl) {
     /**
      * Initializes the final score container and adds it to the stage
      */
-    var _makeScoreDisplay = function (finalScore, possScore, percentage, extra) {
+    var _makeScoreDisplay = function (finalScore, possScore, percentage, didSetHighScore) {
         var content = ["Final Score: " + finalScore + " / " + possScore];
         _finalScoreContainer = new createjs.Container();
         // _finalScoreContainer.addChild(_makeCenteredTextContainer(content).container);
@@ -222,7 +223,12 @@ function GameLevel(lvl) {
         content = ["Score: " + percentage + "%"];
         var grade = moosetrack.getGradeFromPercentage(percentage);
         content.push("Grade: " + grade);
-        content.push(extra);
+        content.push("Total score on " + DIFFICULTIES[moosetrack.current_difficulty].toUpperCase() + ": " + _totalScoreOnDifficulty);
+        if(didSetHighScore) {
+            content.push("You set a high score on the leaderboard!");
+        } else {
+            content.push("You need a total score of " + (moosetrack.leaderboardCutoff[moosetrack.current_difficulty] + 1) + " for the leaderboard");
+        }
         var ctc = _makeCenteredTextContainer(content, moosetrack.getScoreColor(percentage)).container;
         ctc.y += 50;
         _finalScoreContainer.addChild(ctc);
@@ -301,20 +307,49 @@ function GameLevel(lvl) {
                 } );
             }
 
-            /* record top score */
-            var prevPercent = moosetrack.top_scores[moosetrack.current_difficulty][_levelNumber];
-            if( prevPercent === undefined || percentage > prevPercent ) {
-                moosetrack.top_scores[moosetrack.current_difficulty][_levelNumber] = percentage;
-                /* save cookie */
-                $.cookie('state', JSON.stringify({
-                    top_scores: moosetrack.top_scores,
-                    num_rounds: moosetrack.num_rounds
-                }));
+            /* periodically ask players to invite on fb */
+            if((moosetrack.num_rounds - 1) % 10 === 0) {
+                // Clay.Facebook.invite();
             }
+
+
+            /* record top score */
+            var scores = moosetrack.top_scores[moosetrack.current_difficulty];
+            var prevPercent = scores[_levelNumber];
+            if( prevPercent === undefined || percentage > prevPercent ) {
+                scores[_levelNumber] = percentage;
+            }
+
+            /* now calculate accumulative score */
+            _totalScoreOnDifficulty = moosetrack.calculateAccScoreForDifficulty();
+            // console.log('acc is ' + _totalScoreOnDifficulty);
+
+            /* update leaderboard */
+            var cutoffs = moosetrack.leaderboardCutoff;
+            var didSetHighScore = false;
+            if( _totalScoreOnDifficulty > cutoffs[moosetrack.current_difficulty] ) {
+                // console.log("updating");
+                didSetHighScore = true;
+                cutoffs[moosetrack.current_difficulty] = _totalScoreOnDifficulty;
+                var leaderboard = new Clay.Leaderboard( { id: 3330 + moosetrack.current_difficulty } );
+                leaderboard.post( { score: _totalScoreOnDifficulty }, function( response ) {
+                    // Callback
+                    // console.log( response );
+                } );
+            }
+
+            /* save cookie */
+            moosetrack.highestScores[moosetrack.current_difficulty] = Math.max(_totalScoreOnDifficulty, moosetrack.highestScores[moosetrack.current_difficulty]);
+            $.cookie('state', JSON.stringify({
+                top_scores: moosetrack.top_scores,
+                num_rounds: moosetrack.num_rounds,
+                highestScores: moosetrack.highestScores
+            }));
+
 
             /* refresh score display */
             _bigContainer.removeChild(_finalScoreContainer);
-            _makeScoreDisplay(_accScore, _possScore, percentage, extra);
+            _makeScoreDisplay(_accScore, _possScore, percentage, didSetHighScore);
         }
 
         _playerRecordingCnt++;
